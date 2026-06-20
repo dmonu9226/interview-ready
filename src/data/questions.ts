@@ -1539,6 +1539,989 @@ document.documentElement.style.setProperty('--brand-color', 'red');`,
     priority: null
   },
 
+  // ==================== ADDITIONAL HTML & CSS QUESTIONS ====================
+  {
+    id: 249,
+    category: 'HTML & CSS',
+    question: 'What is the difference between display: none and visibility: hidden?',
+    answer: 'display: none removes element from document flow (no space), visibility: hidden hides element but keeps space. display: none triggers reflow, visibility: hidden only repaint. display: none not accessible, visibility: hidden still in accessibility tree.',
+    explanation: '**Key Differences:**\n\n• **Space**: `display: none` removes space, `visibility: hidden` preserves it\n• **Performance**: `visibility: hidden` is faster (only repaint)\n• **Accessibility**: `visibility: hidden` elements are still read by screen readers\n• **Child Elements**: Children of `visibility: hidden` can be made visible with `visibility: visible`',
+    codeExample: `.hidden-display {
+  display: none; /* Completely removed */
+}
+
+.hidden-visibility {
+  visibility: hidden; /* Space preserved */
+}
+
+/* Child can override parent visibility */
+.parent-hidden {
+  visibility: hidden;
+}
+.child-visible {
+  visibility: visible;
+}`,
+    priority: null
+  },
+  {
+    id: 250,
+    category: 'HTML & CSS',
+    question: 'Explain position property values in CSS.',
+    answer: 'static (default, normal flow), relative (offset from normal position), absolute (positioned relative to nearest positioned ancestor), fixed (relative to viewport), sticky (toggles between relative and fixed). Use z-index to control stacking order.',
+    explanation: '**Position Values:**\n\n• **static**: Default behavior, follows normal document flow\n• **relative**: Can use top/right/bottom/left to offset from original position\n• **absolute**: Removed from flow, positioned relative to nearest non-static ancestor\n• **fixed**: Removed from flow, stays fixed relative to viewport (stays on scroll)\n• **sticky**: Behaves like relative until scroll threshold, then becomes fixed',
+    codeExample: `.relative-box {
+  position: relative;
+  top: 10px;
+  left: 20px;
+}
+
+.absolute-child {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.sticky-nav {
+  position: sticky;
+  top: 0;
+}`,
+    priority: null
+  },
+  {
+    id: 251,
+    category: 'HTML & CSS',
+    question: 'What is the difference between em, rem, px, and % units?',
+    answer: 'px: absolute unit, fixed size. em: relative to parent font-size. rem: relative to root (html) font-size. %: relative to parent dimension. Best practice: use rem for typography, % or vw/vh for layouts, avoid px for responsive design.',
+    explanation: '**CSS Units:**\n\n• **px**: Fixed pixels, not scalable (bad for accessibility)\n• **em**: Relative to parent element\'s font-size (can compound)\n• **rem**: Relative to root html font-size (consistent, recommended)\n• **%**: Percentage of parent element\n• **vw/vh**: Viewport width/height (1vw = 1% of viewport width)\n• **ch**: Width of "0" character (good for form inputs)',
+    codeExample: `html {
+  font-size: 16px; /* Base size */
+}
+
+h1 {
+  font-size: 2rem; /* 32px */
+}
+
+.card {
+  padding: 1.5rem; /* 24px */
+  width: 50%; /* Half of parent */
+}
+
+.hero {
+  height: 100vh; /* Full viewport height */
+}`,
+    priority: null
+  },
+  {
+    id: 252,
+    category: 'HTML & CSS',
+    question: 'How does z-index work and what is stacking context?',
+    answer: 'z-index controls vertical stacking order. Only works on positioned elements (not static). Higher z-index appears on top. Stacking context created by: positioned elements with z-index, opacity < 1, transform, filter, flex/grid children with z-index. Each stacking context is independent.',
+    explanation: '**Stacking Context Rules:**\n\n• Elements with higher z-index appear above lower ones\n• z-index only works on positioned elements (relative, absolute, fixed, sticky)\n• A new stacking context isolates child z-index values\n• Parent stacking context takes precedence over children\n\n**Common Triggers for New Stacking Context:**\n• position + z-index\n• opacity < 1\n• transform, filter, perspective\n• isolation: isolate\n• mix-blend-mode',
+    codeExample: `.modal-overlay {
+  position: fixed;
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1001;
+}
+
+/* Creates new stacking context */
+.parent {
+  position: relative;
+  z-index: 1;
+  opacity: 0.9;
+}
+
+.child {
+  position: absolute;
+  z-index: 9999; /* Still below .modal because parent has z-index: 1 */
+}`,
+    priority: null
+  },
+  {
+    id: 253,
+    category: 'HTML & CSS',
+    question: 'What are BFC (Block Formatting Context) and how to create one?',
+    answer: 'BFC is an isolated layout region where boxes are laid out. Created by: float (not none), position (absolute/fixed), display (inline-block/table-cell/flex/grid), overflow (not visible). Benefits: contains floats, prevents margin collapse, prevents text wrapping around floats.',
+    explanation: '**Why BFC Matters:**\n\n• **Contains Floats**: Parent expands to contain floated children\n• **Prevents Margin Collapse**: Margins don\'t collapse between BFC siblings\n• **Isolates Layout**: External elements don\'t affect internal layout\n\n**Common Use Case**: Clearing floats without extra markup',
+    codeExample: `/* Create BFC to contain floats */
+.container {
+  overflow: hidden; /* Creates BFC */
+}
+
+.float-left {
+  float: left;
+  width: 50%;
+}
+
+/* Alternative BFC creators */
+.bfc-1 { display: flow-root; } /* Modern way */
+.bfc-2 { display: flex; }
+.bfc-3 { position: absolute; }
+.bfc-4 { overflow: auto; }`,
+    priority: null
+  },
+  {
+    id: 254,
+    category: 'HTML & CSS',
+    question: 'Explain CSS transitions vs animations.',
+    answer: 'Transitions: simple state changes (hover, focus), triggered by events, no keyframes. Animations: complex multi-step sequences, auto-play or controlled, uses @keyframes. Transitions need trigger, animations can run automatically. Use transitions for simple effects, animations for complex sequences.',
+    explanation: '**When to Use What:**\n\n• **Transitions**: Simple hover effects, smooth state changes\n• **Animations**: Loading spinners, complex sequences, auto-playing effects\n• **Performance**: Both can use GPU acceleration with transform/opacity\n• **Control**: Animations offer more control with keyframes and iteration',
+    codeExample: `/* Transition - needs trigger */
+.button {
+  transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.button:hover {
+  background-color: blue;
+  transform: scale(1.05);
+}
+
+/* Animation - runs automatically */
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}`,
+    priority: null
+  },
+  {
+    id: 255,
+    category: 'HTML & CSS',
+    question: 'What is the difference between grid-template-columns and grid-auto-columns?',
+    answer: 'grid-template-columns: explicitly defines column tracks (fixed structure). grid-auto-columns: defines size of implicit columns (auto-generated). Use template for planned layout, auto for dynamic content. Template creates explicit grid, auto handles overflow items.',
+    explanation: '**Explicit vs Implicit Grid:**\n\n• **Explicit Grid**: Defined by grid-template-rows/columns\n• **Implicit Grid**: Auto-created when content exceeds explicit grid\n• **grid-auto-***: Controls sizing of implicit tracks\n• Best practice: Define explicit grid for main layout, use auto for flexibility',
+    codeExample: `.gallery {
+  display: grid;
+  /* Explicit: 3 fixed columns */
+  grid-template-columns: repeat(3, 1fr);
+  /* Implicit: any extra columns are 200px */
+  grid-auto-columns: 200px;
+  gap: 1rem;
+}
+
+/* Responsive with auto-fit */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}`,
+    priority: null
+  },
+  {
+    id: 256,
+    category: 'HTML & CSS',
+    question: 'How to center an element horizontally and vertically?',
+    answer: 'Methods: 1) Flexbox: display:flex + justify-content:center + align-items:center, 2) Grid: display:grid + place-items:center, 3) Absolute: position:absolute + top:50% + left:50% + transform:translate(-50%,-50%), 4) Margin: margin:auto (block elements). Flexbox/Grid are modern preferred methods.',
+    explanation: '**Centering Techniques:**\n\n• **Flexbox**: Most versatile, works for any content\n• **Grid**: Simplest syntax with place-items\n• **Absolute + Transform**: Works even without knowing dimensions\n• **Margin Auto**: Only for horizontal centering of block elements',
+    codeExample: `/* Method 1: Flexbox (Recommended) */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Method 2: Grid (Simplest) */
+.grid-center {
+  display: grid;
+  place-items: center;
+}
+
+/* Method 3: Absolute Positioning */
+.absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Method 4: Margin (Horizontal only) */
+.margin-center {
+  margin: 0 auto;
+  width: 50%;
+}`,
+    priority: null
+  },
+  {
+    id: 257,
+    category: 'HTML & CSS',
+    question: 'What is the :where() selector and how does it differ from :is()?',
+    answer: ':where() and :is() both accept selector lists, but :where() always has specificity of 0, while :is() takes highest specificity from arguments. Use :where() for zero-specificity selectors, :is() for normal specificity matching.',
+    explanation: '**Specificity Difference:**\n\n• **:is()**: Uses highest specificity from its arguments\n• **:where()**: Always has 0 specificity\n• **:where()** useful for creating reusable styles without affecting specificity\n• Both support same selector syntax',
+    codeExample: `/* :is() - specificity is 10 (class) */
+:is(.header, .footer) a {
+  color: blue;
+}
+
+/* :where() - specificity is 0 */
+:where(.header, .footer) a {
+  color: red; /* Lower priority than :is() version */
+}
+
+/* Practical use: reset styles */
+:where(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0;
+}`,
+    priority: null
+  },
+  {
+    id: 258,
+    category: 'HTML & CSS',
+    question: 'Explain CSS containment property.',
+    answer: 'contain property optimizes rendering by telling browser that element subtree is independent. Values: layout (layout containment), paint (paint containment), size (size containment), style (style containment). Improves performance for large pages by limiting recalculation scope.',
+    explanation: '**Containment Types:**\n\n• **layout**: Element\'s layout is independent of outside\n• **paint**: Descendants don\'t display outside bounds\n• **size**: Size can be determined without examining descendants\n• **style**: Styles won\'t escape element\n• **content**: Shorthand for layout + paint\n• **strict**: Shorthand for layout + paint + size',
+    codeExample: `/* Optimize rendering for card components */
+.card {
+  contain: content; /* layout + paint */
+}
+
+/* For fixed-size widgets */
+.widget {
+  contain: strict; /* layout + paint + size */
+  width: 300px;
+  height: 200px;
+}
+
+/* Isolate layout calculations */
+.sidebar {
+  contain: layout;
+}`,
+    priority: null
+  },
+  {
+    id: 259,
+    category: 'HTML & CSS',
+    question: 'What are logical properties in CSS?',
+    answer: 'Logical properties replace physical directions with logical ones based on writing mode. Examples: margin-inline-start (instead of margin-left), padding-block (top+bottom), border-inline-end. Benefits: Better internationalization, automatic RTL support, cleaner responsive code.',
+    explanation: '**Physical vs Logical:**\n\n• **Physical**: left, right, top, bottom (direction-dependent)\n• **Logical**: inline-start/end, block-start/end (writing-mode-aware)\n• **inline**: Horizontal axis in LTR/RTL languages\n• **block**: Vertical axis in most languages\n• Automatically adapts to text direction',
+    codeExample: `/* Physical properties */
+.old-way {
+  margin-left: 1rem;
+  margin-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Logical properties (modern) */
+.new-way {
+  margin-inline-start: 1rem; /* left in LTR, right in RTL */
+  margin-inline-end: 2rem;
+  padding-block: 1rem; /* top + bottom */
+  border-inline: 1px solid black;
+}`,
+    priority: null
+  },
+  {
+    id: 260,
+    category: 'HTML & CSS',
+    question: 'How to prevent FOUC (Flash of Unstyled Content)?',
+    answer: 'FOUC occurs when HTML renders before CSS loads. Prevention: 1) Inline critical CSS in <head>, 2) Load CSS in <head> not body, 3) Use media queries for non-critical CSS, 4) Preload critical fonts, 5) Avoid @import in CSS. Critical rendering path optimization.',
+    explanation: '**Best Practices:**\n\n• **Critical CSS**: Inline above-the-fold styles directly in HTML\n• **Load Order**: CSS before JavaScript in <head>\n• **Async Loading**: Use media="print" then switch for non-critical CSS\n• **Font Loading**: Use font-display: swap or optional\n• **Avoid Blocking**: Don\'t use @import (creates additional request chain)',
+    codeExample: `<!-- Inline critical CSS -->
+<style>
+  /* Above-the-fold styles */
+  header { background: #fff; }
+  .hero { min-height: 100vh; }
+</style>
+
+<!-- Load remaining CSS -->
+<link rel="stylesheet" href="styles.css">
+
+<!-- Non-critical CSS loaded async -->
+<link rel="stylesheet" href="extra.css" media="print" onload="this.media='all'">`,
+    priority: null
+  },
+  {
+    id: 261,
+    category: 'HTML & CSS',
+    question: 'What is the difference between reset.css and normalize.css?',
+    answer: 'reset.css: Removes all default browser styles (aggressive, starts from scratch). normalize.css: Makes browsers render consistently while preserving useful defaults (conservative). Modern approach: Use minimal reset or CSS custom properties for consistency.',
+    explanation: '**Approaches:**\n\n• **Reset**: Strips everything (margin: 0, padding: 0 everywhere)\n• **Normalize**: Fixes inconsistencies, keeps sensible defaults\n• **Modern**: Minimal reset + design tokens\n• Recommendation: Use normalize.css or modern alternatives like ress.css',
+    codeExample: `/* Reset approach (aggressive) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Normalize approach (conservative) */
+/* Keeps useful defaults, fixes bugs */
+body {
+  line-height: 1.15; /* Consistent across browsers */
+}
+
+/* Modern minimal reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+}`,
+    priority: null
+  },
+  {
+    id: 262,
+    category: 'HTML & CSS',
+    question: 'Explain CSS aspect-ratio property.',
+    answer: 'aspect-ratio maintains proportional dimensions. Syntax: aspect-ratio: width / height (e.g., 16/9, 1/1). Replaces padding-bottom hack for responsive media. Works with width or height specified. Browser calculates missing dimension automatically.',
+    explanation: '**Use Cases:**\n\n• **Images/Videos**: Maintain proportions during loading\n• **Cards**: Uniform card sizes in grids\n• **Responsive Design**: Scale proportionally across breakpoints\n• **Replaces**: The old padding-bottom percentage trick',
+    codeExample: `/* Square aspect ratio */
+.square {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+}
+
+/* Video container (16:9) */
+.video-container {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+/* Card with consistent ratio */
+.card-image {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}`,
+    priority: null
+  },
+  {
+    id: 263,
+    category: 'HTML & CSS',
+    question: 'What are CSS scroll-snap properties?',
+    answer: 'Scroll-snap creates snapping points during scrolling. Properties: scroll-snap-type (container), scroll-snap-align (children). Values: x, y, both, mandatory, proximity. Creates carousel-like behavior without JavaScript. Great for image galleries, full-page sections.',
+    explanation: '**Scroll Snap Types:**\n\n• **none**: No snapping\n• **x/y/both**: Axis to snap on\n• **mandatory**: Always snap to point\n• **proximity**: Snap if close enough\n• Smooth, native scrolling experience',
+    codeExample: `/* Container */
+.gallery {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+/* Children */
+.gallery-item {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
+/* Full-page sections */
+.sections {
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+section {
+  scroll-snap-align: start;
+  height: 100vh;
+}`,
+    priority: null
+  },
+  {
+    id: 264,
+    category: 'HTML & CSS',
+    question: 'How to create a CSS-only tooltip?',
+    answer: 'Use data attribute for content, ::before/::after pseudo-elements for tooltip box and arrow, :hover or :focus to show. Position absolutely relative to parent. Add transition for smooth appearance. Ensure accessibility with proper ARIA attributes.',
+    explanation: '**Implementation Strategy:**\n\n• Store tooltip text in data-tooltip attribute\n• Use ::after for tooltip content (content: attr(data-tooltip))\n• Use ::before for arrow/triangle\n• Show on :hover and :focus for accessibility\n• Position with absolute positioning',
+    codeExample: `[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  background: #333;
+  color: white;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus::after {
+  opacity: 1;
+  visibility: visible;
+}`,
+    priority: null
+  },
+  {
+    id: 265,
+    category: 'HTML & CSS',
+    question: 'What is the difference between clip-path and mask?',
+    answer: 'clip-path: Defines visible region (vector paths), hard edges, better performance. mask: Uses images/gradients for transparency, supports soft edges and gradients, more flexible. clip-path for geometric shapes, mask for complex transparency effects.',
+    explanation: '**When to Use:**\n\n• **clip-path**: Simple shapes (circle, polygon), better performance\n• **mask**: Gradient fades, image-based masks, soft edges\n• **clip-path**: Part of CSS Shapes module\n• **mask**: Requires vendor prefixes in some browsers',
+    codeExample: `/* Clip-path examples */
+.circle {
+  clip-path: circle(50%);
+}
+
+.polygon {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+/* Mask examples */
+.gradient-mask {
+  mask-image: linear-gradient(to bottom, black, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+.image-mask {
+  mask-image: url(mask.png);
+  mask-size: cover;
+}`,
+    priority: null
+  },
+  {
+    id: 266,
+    category: 'HTML & CSS',
+    question: 'Explain CSS counter-reset and counter-increment.',
+    answer: 'CSS counters allow automatic numbering. counter-reset initializes counter (default 0), counter-increment increases value. Display with counter() or counters() in content property. Useful for ordered lists, section numbering, table of contents without JavaScript.',
+    explanation: '**Counter Functions:**\n\n• **counter-reset**: Initialize counter (can set starting value)\n• **counter-increment**: Increase counter (default +1)\n• **counter(name)**: Display current value\n• **counters(name, separator)**: Display nested counters\n• Can count any element, not just list items',
+    codeExample: `/* Automatic section numbering */
+body {
+  counter-reset: section;
+}
+
+h2::before {
+  counter-increment: section;
+  content: "Section " counter(section) ": ";
+}
+
+/* Nested numbering (1.1, 1.2, etc.) */
+ol {
+  counter-reset: item;
+  list-style: none;
+}
+
+li::before {
+  counter-increment: item;
+  content: counters(item, ".") " ";
+}`,
+    priority: null
+  },
+  {
+    id: 267,
+    category: 'HTML & CSS',
+    question: 'What is the prefers-reduced-motion media query?',
+    answer: 'prefers-reduced-motion respects user\'s OS setting for reduced motion. Important for accessibility (vestibular disorders, motion sensitivity). Check with @media (prefers-reduced-motion: reduce). Provide alternative animations or disable them. Always respect user preferences.',
+    explanation: '**Accessibility Best Practice:**\n\n• Some users experience nausea/dizziness from animations\n• Users can enable reduced motion in OS settings\n• Always provide non-animated alternatives\n• Disable parallax, auto-scrolling, flashing effects\n• Keep essential UI feedback (button states)',
+    codeExample: `/* Default animation */
+.animated-element {
+  animation: slideIn 0.5s ease-out;
+  transition: transform 0.3s;
+}
+
+/* Respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  .animated-element {
+    animation: none;
+    transition: none;
+  }
+  
+  /* Or provide simpler alternative */
+  .fade-in {
+    animation: fadeIn 0.1s; /* Very subtle */
+  }
+}`,
+    priority: null
+  },
+  {
+    id: 268,
+    category: 'HTML & CSS',
+    question: 'How to implement dark mode with CSS?',
+    answer: 'Methods: 1) prefers-color-scheme media query (system preference), 2) CSS custom properties + class toggle (user control), 3) Combine both. Define color variables for light/dark themes. Toggle class on <html> or <body>. Store preference in localStorage.',
+    explanation: '**Implementation Approaches:**\n\n• **System Preference**: Automatic based on OS setting\n• **User Toggle**: Manual switch with class toggling\n• **Hybrid**: Start with system, allow override\n• **Variables**: Change variable values, not individual properties\n• **Storage**: Save user preference for persistence',
+    codeExample: `/* Define theme variables */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+}
+
+/* System preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+  }
+}
+
+/* Apply variables */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}`,
+    priority: null
+  },
+  {
+    id: 269,
+    category: 'HTML & CSS',
+    question: 'What is the difference between object-fit and object-position?',
+    answer: 'object-fit: Controls how replaced content (img, video) resizes to fit container (contain, cover, fill, none, scale-down). object-position: Controls alignment within container (like background-position). Common: object-fit: cover for uniform images, contain for full visibility.',
+    explanation: '**Object-Fit Values:**\n\n• **fill**: Stretches to fill (may distort) - default\n• **contain**: Fits entirely within (may have empty space)\n• **cover**: Fills completely (may crop)\n• **none**: Original size (may overflow)\n• **scale-down**: Smaller of none or contain\n• **object-position**: Works like background-position (center, top, etc.)',
+    codeExample: `/* Cover entire area (crop if needed) */
+.cover-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Show entire image (may have gaps) */
+.contain-image {
+  width: 100%;
+  height: 300px;
+  object-fit: contain;
+}
+
+/* Specific positioning */
+.top-image {
+  object-fit: cover;
+  object-position: top center;
+}`,
+    priority: null
+  },
+  {
+    id: 270,
+    category: 'HTML & CSS',
+    question: 'Explain CSS will-change property.',
+    answer: 'will-change hints browser about upcoming changes for optimization. Values: auto, scroll-position, contents, <custom-ident>. Use sparingly - creates new stacking context and consumes memory. Remove after animation completes. Only use for actual performance bottlenecks.',
+    explanation: '**Best Practices:**\n\n• **Purpose**: Gives browser advance notice for optimization\n• **Memory Cost**: Each will-change creates compositor layer\n• **When to Use**: Before expensive animations/transitions\n• **When to Remove**: After animation completes\n• **Don\'t Overuse**: Can hurt performance if misused\n• **Alternatives**: Let browser optimize naturally first',
+    codeExample: `/* Before animation starts */
+.element {
+  will-change: transform, opacity;
+}
+
+/* During animation */
+.element.animate {
+  transform: rotate(360deg);
+  opacity: 0.5;
+}
+
+/* After animation - remove will-change */
+.element:not(.animate) {
+  will-change: auto;
+}
+
+/* Dynamic usage with JS */
+element.addEventListener('mouseenter', () => {
+  element.style.willChange = 'transform';
+});
+element.addEventListener('mouseleave', () => {
+  element.style.willChange = 'auto';
+});`,
+    priority: null
+  },
+  {
+    id: 271,
+    category: 'HTML & CSS',
+    question: 'What are CSS blend modes?',
+    answer: 'mix-blend-mode blends element with backdrop. background-blend-mode blends background layers. Values: multiply, screen, overlay, darken, lighten, color-dodge, color-burn, hard-light, soft-light, difference, exclusion, hue, saturation, color, luminosity. Create visual effects without images.',
+    explanation: '**Common Blend Modes:**\n\n• **multiply**: Darkens (like multiplying colors)\n• **screen**: Lightens (opposite of multiply)\n• **overlay**: Combines multiply and screen\n• **difference**: Subtracts colors\n• **hue/saturation/color/luminosity**: HSL component blending\n• Useful for image effects, text overlays, creative designs',
+    codeExample: `/* Text blending with background */
+.blended-text {
+  color: white;
+  mix-blend-mode: difference;
+}
+
+/* Background layer blending */
+.multi-bg {
+  background-image: url(photo.jpg), linear-gradient(red, blue);
+  background-blend-mode: overlay;
+}
+
+/* Image effect */
+.grayscale-effect {
+  mix-blend-mode: luminosity;
+}`,
+    priority: null
+  },
+  {
+    id: 272,
+    category: 'HTML & CSS',
+    question: 'How to create a CSS-only accordion?',
+    answer: 'Use checkbox/radio input + label + sibling selector. Hide input, style label as header, use :checked to show/hide content. Alternative: Use <details> and <summary> elements (semantic, accessible). Details/summary is modern preferred approach.',
+    explanation: '**Two Approaches:**\n\n• **Checkbox Hack**: Works everywhere, less semantic\n• **Details/Summary**: Semantic HTML5, built-in accessibility\n• **Details/Summary Advantages**: Native keyboard support, screen reader friendly\n• **Checkbox Advantages**: More styling control, multiple open',
+    codeExample: `/* Modern approach (recommended) */
+details {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+summary {
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+details[open] summary {
+  border-bottom: 1px solid #ccc;
+}
+
+.details-content {
+  padding: 1rem;
+}
+
+/* Checkbox approach */
+.accordion-input {
+  display: none;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s;
+}
+
+.accordion-input:checked ~ .accordion-content {
+  max-height: 500px;
+}`,
+    priority: null
+  },
+  {
+    id: 273,
+    category: 'HTML & CSS',
+    question: 'What is the CSS :focus-visible pseudo-class?',
+    answer: ':focus-visible shows focus indicator only when appropriate (keyboard navigation), not on mouse click. Improves UX by hiding focus rings for mouse users while keeping them for keyboard users. Better than :focus which shows for all interactions. Essential for accessibility.',
+    explanation: '**Focus Management:**\n\n• **:focus**: Shows on any focus (mouse, keyboard, touch)\n• **:focus-visible**: Smart detection of focus method\n• **Browser Heuristic**: Shows ring when keyboard used\n• **Accessibility**: Keyboard users need visible focus\n• **UX**: Mouse users don\'t need persistent focus rings',
+    codeExample: `/* Remove default outline */
+button {
+  outline: none;
+}
+
+/* Show focus only for keyboard users */
+button:focus-visible {
+  outline: 2px solid blue;
+  outline-offset: 2px;
+}
+
+/* Fallback for older browsers */
+button:focus {
+  outline: 2px solid blue;
+  outline-offset: 2px;
+}
+
+button.js-focus-visible:focus:not(.focus-visible) {
+  outline: none;
+}`,
+    priority: null
+  },
+  {
+    id: 274,
+    category: 'HTML & CSS',
+    question: 'Explain CSS @supports rule (feature queries).',
+    answer: '@supports checks browser support for CSS features before applying styles. Progressive enhancement pattern. Syntax: @supports (property: value) { styles }. Can use not, and, or operators. Fallback styles outside @supports. Test any CSS feature support.',
+    explanation: '**Progressive Enhancement:**\n\n• **Purpose**: Apply advanced styles only if supported\n• **Fallback**: Provide basic styles for all browsers\n• **Operators**: not, and, or for complex queries\n• **Better than JS**: No JavaScript required\n• **Common Uses**: Grid, custom properties, new selectors',
+    codeExample: `/* Basic feature query */
+.card {
+  display: block; /* Fallback */
+}
+
+@supports (display: grid) {
+  .card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Complex query */
+@supports (display: grid) and (gap: 1rem) {
+  .layout {
+    display: grid;
+    gap: 1rem;
+  }
+}
+
+/* Negation */
+@supports not (display: grid) {
+  .layout {
+    display: flex;
+  }
+}`,
+    priority: null
+  },
+  {
+    id: 275,
+    category: 'HTML & CSS',
+    question: 'What is the difference between initial, inherit, unset, and revert?',
+    answer: 'initial: Sets to CSS spec default value. inherit: Takes parent\'s computed value. unset: Acts as inherit if inherited property, initial otherwise. revert: Rolls back to user agent stylesheet or user styles. revert-layer: Reverts to previous cascade layer.',
+    explanation: '**Keyword Values:**\n\n• **initial**: CSS specification default (e.g., display: inline)\n• **inherit**: Copy from parent element\n• **unset**: inherit for inherited props, initial for others\n• **revert**: Back to browser default or user styles\n• **revert-layer**: Back to previous @layer\n• Useful for resetting specific properties',
+    codeExample: `/* Reset to default */
+.reset-btn {
+  all: initial; /* Reset all properties */
+}
+
+/* Inherit from parent */
+.child {
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Smart reset */
+.unset-example {
+  margin: unset; /* Acts as inherit (margin is inherited) */
+  display: unset; /* Acts as initial (display is not inherited) */
+}
+
+/* Revert to browser default */
+.revert-example {
+  all: revert;
+}`,
+    priority: null
+  },
+  {
+    id: 276,
+    category: 'HTML & CSS',
+    question: 'How to optimize web fonts for performance?',
+    answer: 'Strategies: 1) Use font-display: swap/optional, 2) Subset fonts (remove unused characters), 3) Use WOFF2 format, 4) Limit font weights/styles, 5) Preload critical fonts, 6) Use system fonts as fallback, 7) Consider variable fonts. Balance aesthetics with performance.',
+    explanation: '**Font Optimization Checklist:**\n\n• **font-display**: Control loading behavior (swap, optional, fallback)\n• **Format**: WOFF2 has best compression\n• **Subsetting**: Include only needed characters\n• **Weights**: Load only used weights (400, 700)\n• **Preload**: <link rel="preload"> for critical fonts\n• **Variable Fonts**: Single file for multiple weights/styles\n• **System Fallback**: Use font-stack with system fonts',
+    codeExample: `/* Preload critical font */
+<link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin>
+
+/* Font loading strategy */
+@font-face {
+  font-family: 'CustomFont';
+  src: url('font.woff2') format('woff2');
+  font-display: swap; /* Show fallback immediately */
+  font-weight: 400;
+}
+
+/* Font stack with fallbacks */
+body {
+  font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Variable font */
+@font-face {
+  font-family: 'VarFont';
+  src: url('variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+}`,
+    priority: null
+  },
+  {
+    id: 277,
+    category: 'HTML & CSS',
+    question: 'What are CSS containment queries (@container)?',
+    answer: 'Container queries style elements based on parent container size, not viewport. Enables truly modular, reusable components. Syntax: @container (min-width: 400px) { styles }. Requires container-type on parent (inline-size, size, normal). Component-level responsive design.',
+    explanation: '**vs Media Queries:**\n\n• **Media Queries**: Based on viewport size\n• **Container Queries**: Based on parent container size\n• **Benefit**: Components adapt to their container, not screen\n• **Use Case**: Cards in different layout contexts\n• **Setup**: Define container-type on parent element',
+    codeExample: `/* Define container */
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+/* Query container size */
+@container card (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+@container card (max-width: 399px) {
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+}`,
+    priority: null
+  },
+  {
+    id: 278,
+    category: 'HTML & CSS',
+    question: 'Explain CSS text-wrap: balance and pretty.',
+    answer: 'text-wrap: balance evenly distributes text across lines (better headlines). text-wrap: pretty prevents single words on last line (orphans). Modern CSS properties for typographic improvement. balance for short text (titles), pretty for paragraphs. Replaces JavaScript solutions.',
+    explanation: '**Text Wrapping Options:**\n\n• **balance**: Evens out line lengths (great for headings)\n• **pretty**: Prevents widows/orphans in paragraphs\n• **wrap**: Default wrapping behavior\n• **nowrap**: No wrapping at all\n• Improves readability and visual appeal',
+    codeExample: `/* Balanced headings */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Pretty paragraphs */
+p {
+  text-wrap: pretty;
+}
+
+/* Traditional approach (manual) */
+.manual-break {
+  /* Would need <br> tags or JS */
+}`,
+    priority: null
+  },
+  {
+    id: 279,
+    category: 'HTML & CSS',
+    question: 'What is the CSS accent-color property?',
+    answer: 'accent-color sets color for form controls (checkboxes, radio buttons, range sliders, progress bars). Simplifies form styling without custom controls. Inherits from color if not set. Works on native form elements. Limited customization but easy to implement.',
+    explanation: '**Styled Form Elements:**\n\n• **Applies to**: checkbox, radio, range, progress\n• **Inheritance**: Defaults to color property\n• **Limitation**: Can\'t fully customize appearance\n• **Browser Support**: Good in modern browsers\n• **Alternative**: Custom form controls for full control',
+    codeExample: `/* Global accent color */
+:root {
+  accent-color: #646cff;
+}
+
+/* Specific element */
+input[type="checkbox"] {
+  accent-color: green;
+}
+
+input[type="range"] {
+  accent-color: orange;
+}
+
+/* Inherit from text color */
+.themed-form {
+  color: purple;
+  /* Form controls will be purple */
+}`,
+    priority: null
+  },
+  {
+    id: 280,
+    category: 'HTML & CSS',
+    question: 'How to create fluid typography with clamp()?',
+    answer: 'clamp(min, preferred, max) creates responsive font sizes without media queries. Formula: clamp(minSize, calc(baseSize + viewportUnits), maxSize). Example: clamp(1rem, 2.5vw, 2rem). Scales smoothly between breakpoints. Combines with calc() for precise control.',
+    explanation: '**Fluid Typography Formula:**\n\n• **min**: Smallest font size (mobile)\n• **preferred**: Scaling value (usually viewport units)\n• **max**: Largest font size (desktop)\n• **Benefits**: Smooth scaling, no breakpoints needed\n• **Advanced**: Use calc() with vw for precise scaling',
+    codeExample: `/* Simple fluid typography */
+h1 {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
+
+p {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+/* Advanced with calc */
+.fluid-text {
+  font-size: clamp(
+    1rem,
+    calc(1rem + 1.5vw),
+    2.5rem
+  );
+}
+
+/* Fluid spacing */
+.section {
+  padding: clamp(1rem, 3vw, 4rem);
+}`,
+    priority: null
+  },
+  {
+    id: 281,
+    category: 'HTML & CSS',
+    question: 'What is the CSS gap property and where can it be used?',
+    answer: 'gap sets spacing between grid/flex items. Replaces margins for layout spacing. Works in Grid (original), Flexbox (modern), Multi-column layouts. Advantages: No margin collapse, easier calculation, consistent spacing. Syntax: gap: row-gap column-gap or gap: both.',
+    explanation: '**Gap Property:**\n\n• **Grid**: Original use case, full support\n• **Flexbox**: Added later, now widely supported\n• **Multi-column**: Also works here\n• **Advantages over margin**: No collapse, parent-aligned\n• **Syntax**: gap: 1rem (both), gap: 1rem 2rem (row col)',
+    codeExample: `/* Grid gap */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; /* Same row and column */
+  gap: 1rem 2rem; /* Row Column */
+}
+
+/* Flexbox gap */
+.flex {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Old way (avoid) */
+.old-grid > * {
+  margin: 0.5rem; /* Causes edge spacing issues */
+}`,
+    priority: null
+  },
+  {
+    id: 282,
+    category: 'HTML & CSS',
+    question: 'Explain CSS isolation property.',
+    answer: 'isolation: isolate creates new stacking context without needing position/z-index. Prevents blend mode inheritance. Useful for containing mix-blend-mode effects. Cleaner than position: relative + z-index. Part of compositing and blending spec.',
+    explanation: '**Isolation Use Cases:**\n\n• **Stacking Context**: Without affecting layout\n• **Blend Mode Containment**: Prevent mixing with backdrop\n• **Component Isolation**: Keep effects contained\n• **Cleaner Code**: No need for position hacks\n• Similar to creating new BFC for blending',
+    codeExample: `/* Create stacking context cleanly */
+.isolated {
+  isolation: isolate;
+}
+
+/* Contain blend modes */
+.blend-container {
+  isolation: isolate;
+}
+
+.blend-child {
+  mix-blend-mode: multiply;
+  /* Won't blend with elements outside container */
+}
+
+/* Old way (still valid) */
+.old-isolation {
+  position: relative;
+  z-index: 0;
+}`,
+    priority: null
+  },
+  {
+    id: 283,
+    category: 'HTML & CSS',
+    question: 'What are CSS nesting rules and best practices?',
+    answer: 'Native CSS nesting allows nested selectors without preprocessors. Syntax: parent { & child { styles } }. Use & for parent reference. Supports @media, @supports inside. Best practices: Limit depth (3 levels max), use for component scoping, combine with BEM. Browser support now excellent.',
+    explanation: '**Native CSS Nesting:**\n\n• **& Symbol**: References parent selector\n• **Depth**: Keep nesting shallow (max 3 levels)\n• **Readability**: Don\'t over-nest, maintain clarity\n• **Performance**: Compiles to same CSS as flat selectors\n• **Combines Well**: With CSS custom properties\n• **Supported**: All modern browsers',
+    codeExample: `/* Basic nesting */
+.card {
+  padding: 1rem;
+  
+  & h2 {
+    font-size: 1.5rem;
+  }
+  
+  & .button {
+    background: blue;
+    
+    &:hover {
+      background: darkblue;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    & {
+      padding: 2rem;
+    }
+  }
+}
+
+/* Equivalent to */
+.card { padding: 1rem; }
+.card h2 { font-size: 1.5rem; }
+.card .button { background: blue; }
+.card .button:hover { background: darkblue; }
+@media (min-width: 768px) {
+  .card { padding: 2rem; }
+}`,
+    priority: null
+  },
+
   // ==================== ADVANCED REACT QUESTIONS ====================
   {
     id: 56,
