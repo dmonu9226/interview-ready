@@ -2,6 +2,7 @@ import { useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
 
 interface Question {
   id: number
@@ -106,7 +107,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdatePriority 
                   value={question.codeExample}
                   height="auto"
                   theme={oneDark}
-                  extensions={[javascript()]}
+                  extensions={[javascript(), EditorView.lineWrapping]}
                   basicSetup={{
                     lineNumbers: true,
                     highlightActiveLineGutter: true,

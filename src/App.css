@@ -951,6 +951,29 @@ body {
     font-size: 0.8rem;
   }
 
+  .codemirror-wrapper .cm-scroller {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .codemirror-wrapper .cm-content {
+    min-width: 100%;
+    max-width: 100%;
+    word-break: break-word;
+  }
+
+  .codemirror-wrapper .cm-line {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto;
+  }
+
+  .codemirror-wrapper .cm-gutters {
+    font-size: 0.75rem;
+    min-width: 30px;
+  }
+
   .app-footer {
     padding: 1rem;
     font-size: 0.8rem;
@@ -1236,6 +1259,8 @@ input:focus-visible {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
 }
 
 .codemirror-wrapper .cm-editor {
@@ -1248,6 +1273,35 @@ input:focus-visible {
   overflow: auto;
   max-height: 500px;
   text-align: left;
+}
+
+/* Mobile-first CodeMirror optimizations */
+.codemirror-wrapper .cm-editor {
+  width: 100%;
+  max-width: 100%;
+}
+
+.codemirror-wrapper .cm-content {
+  min-width: 100%;
+  max-width: 100%;
+  padding: 4px;
+}
+
+.codemirror-wrapper .cm-line {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  hyphens: auto;
+}
+
+.codemirror-wrapper .cm-scroller {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.codemirror-wrapper .cm-gutters {
+  font-size: 0.8rem;
+  background-color: transparent;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .practice-section {
@@ -1648,6 +1702,21 @@ input:focus-visible {
 
   .codemirror-wrapper .cm-scroller {
     max-height: 400px;
+    overflow-x: hidden;
+  }
+
+  .codemirror-wrapper .cm-editor {
+    font-size: 0.75rem;
+  }
+
+  .codemirror-wrapper .cm-line {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+
+  .codemirror-wrapper .cm-gutters {
+    font-size: 0.7rem;
+    padding: 0 4px;
   }
 }
 
@@ -1685,6 +1754,27 @@ input:focus-visible {
   .toggle-btn-compact {
     font-size: 0.85rem;
     padding: 0.3rem 0.5rem;
+  }
+
+  /* Extra small mobile - CodeMirror optimizations */
+  .codemirror-wrapper .cm-editor {
+    font-size: 0.7rem;
+  }
+
+  .codemirror-wrapper .cm-scroller {
+    max-height: 350px;
+    overflow-x: hidden;
+  }
+
+  .codemirror-wrapper .cm-line {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .codemirror-wrapper .cm-gutters {
+    font-size: 0.65rem;
+    min-width: 28px;
   }
 }
 

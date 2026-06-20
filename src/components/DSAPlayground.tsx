@@ -2,6 +2,7 @@ import { useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
 import { codeQuestionsData, dsaCategories } from '../data/codeQuestions'
 import type { CodeQuestion } from '../data/codeQuestions'
 
@@ -208,7 +209,7 @@ const DSAPlayground: React.FC<DSAPlaygroundProps> = ({
                       value={question.solution}
                       height="auto"
                       theme={oneDark}
-                      extensions={[javascript()]}
+                      extensions={[javascript(), EditorView.lineWrapping]}
                       basicSetup={{
                         lineNumbers: true,
                         highlightActiveLineGutter: true,
@@ -266,7 +267,7 @@ const DSAPlayground: React.FC<DSAPlaygroundProps> = ({
                           value={practiceCode[question.id] || ''}
                           height="300px"
                           theme={oneDark}
-                          extensions={[javascript()]}
+                          extensions={[javascript(), EditorView.lineWrapping]}
                           onChange={(value) => {
                             setPracticeCode(prev => ({ ...prev, [question.id]: value }))
                           }}
