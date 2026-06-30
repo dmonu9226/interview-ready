@@ -24,7 +24,8 @@ export const categories = [
   'PostgreSQL',
   'Microservices',
   'CI/CD',
-  'Git'
+  'Git',
+  'DevOps'
 ]
 
 export interface Question {
@@ -9134,6 +9135,591 @@ git push origin main
 # Pattern: Expand and Contract for zero downtime`,
     priority: null
   },
+  {
+    id: 316,
+    category: 'CI/CD',
+    question: 'What is a CI/CD pipeline and what are its typical stages?',
+    answer: 'A CI/CD pipeline is an automated workflow that takes code from commit to production. Typical stages include: Source Control → Build → Unit Tests → Code Quality → Integration Tests → Security Scanning → Artifact Creation → Deploy to Staging → E2E Tests → Performance Tests → Approve → Deploy to Production → Monitoring.',
+    explanation: '**Pipeline Stages Explained:**\n\n• **Source:** Git repository triggers pipeline on push/PR\n• **Build:** Compile code, resolve dependencies\n• **Unit Tests:** Fast tests for individual components\n• **Code Quality:** Linting, static analysis, code coverage\n• **Integration Tests:** Test component interactions\n• **Security:** SAST, DAST, dependency scanning\n• **Artifact:** Create Docker image, JAR, etc.\n• **Staging:** Deploy to test environment\n• **E2E Tests:** Full user journey testing\n• **Performance:** Load testing, stress testing\n• **Approval:** Manual gate (optional)\n• **Production:** Deploy with blue-green/canary\n• **Monitoring:** Track health, auto-rollback if needed',
+    codeExample: `# Example Pipeline Flow
+trigger:
+  - main
+  - develop
+
+stages:
+  - build
+  - test
+  - quality
+  - security
+  - deploy-staging
+  - e2e-test
+  - approve
+  - deploy-production
+  - monitor`,
+    priority: null
+  },
+  {
+    id: 317,
+    category: 'CI/CD',
+    question: 'What is the difference between CI, CD (Delivery), and CD (Deployment)?',
+    answer: 'CI (Continuous Integration) automatically builds and tests code on every commit. CD (Continuous Delivery) ensures code is always deployable but requires manual approval for production. CD (Continuous Deployment) fully automates deployment to production without human intervention.',
+    explanation: '**CI:** Focus on integration - merge code frequently, run tests automatically, get fast feedback. **Continuous Delivery:** Every change passes through pipeline and is ready to deploy, but human decides when. Used in regulated industries. **Continuous Deployment:** Fully automated - if tests pass, code goes to production. Requires excellent test coverage and monitoring. Used by Netflix, Amazon, Facebook.',
+    codeExample: `# Comparison
+
+# Continuous Integration
+# Developer pushes → Auto build → Auto test → Feedback
+
+# Continuous Delivery
+# CI passes → Deploy to staging → [Manual Approval] → Production
+
+# Continuous Deployment  
+# CI passes → Deploy to staging → Auto tests → Auto deploy to production
+
+# Key Difference: Human involvement in production deployment`,
+    priority: null
+  },
+  {
+    id: 318,
+    category: 'CI/CD',
+    question: 'What are pipeline artifacts and why are they important?',
+    answer: 'Artifacts are files produced during the build process (compiled code, Docker images, test reports, coverage reports). They\'re stored and passed between pipeline stages or saved for deployment. Important for reproducibility, debugging, and audit trails.',
+    explanation: '**Types of Artifacts:**\n\n• **Build Artifacts:** Compiled binaries, JAR files, bundles\n• **Docker Images:** Containerized applications\n• **Test Reports:** JUnit XML, coverage reports\n• **Logs:** Build logs, test output\n• **Configuration:** Environment-specific configs\n\n**Best Practices:** Version artifacts, store in artifact repositories (Nexus, Artifactory, ECR), set retention policies, secure sensitive artifacts, use checksums for integrity.',
+    codeExample: `# Artifact Examples
+
+# Maven/Java
+<artifactId>my-app</artifactId>
+<version>1.0.0</version>
+<packaging>jar</packaging>
+
+# Docker
+docker build -t myapp:1.0.0 .
+docker push registry.example.com/myapp:1.0.0
+
+# NPM
+npm pack  # Creates .tgz file
+
+# Storage: Nexus, Artifactory, S3, container registries`,
+    priority: null
+  },
+  {
+    id: 319,
+    category: 'CI/CD',
+    question: 'How do you implement parallel jobs in CI/CD pipelines?',
+    answer: 'Parallel jobs run multiple tasks simultaneously to speed up pipelines. Common patterns: parallel test suites, multi-platform builds, independent microservices, matrix builds (test across different OS/runtimes). Reduces pipeline time significantly.',
+    explanation: '**When to Parallelize:**\n\n• Independent test suites (unit, integration, E2E)\n• Multiple deployment targets (staging, prod)\n• Cross-browser testing\n• Multi-architecture builds (amd64, arm64)\n• Microservices deployments\n\n**Considerations:** Resource costs, shared state management, failure handling, aggregation of results. Most CI tools support parallel execution natively.',
+    codeExample: `# Parallel Execution Examples
+
+# GitHub Actions - Matrix Build
+strategy:
+  matrix:
+    node-version: [14, 16, 18]
+  max-parallel: 4
+
+# Jenkins - Parallel Stages
+parallel {
+  stage('Unit Tests') { ... }
+  stage('Integration Tests') { ... }
+}`,
+    priority: null
+  },
+  {
+    id: 320,
+    category: 'CI/CD',
+    question: 'What is pipeline caching and how does it improve performance?',
+    answer: 'Caching stores dependencies, build outputs, or intermediate files between pipeline runs to avoid redundant work. Dramatically reduces build times by reusing previously downloaded packages, compiled code, or test results.',
+    explanation: '**What to Cache:**\n\n• **Dependencies:** node_modules, .m2, .gradle, pip cache\n• **Build Outputs:** Compiled code, Docker layers\n• **Test Results:** For incremental testing\n• **Tool Installations:** SDKs, CLIs\n\n**Cache Keys:** Use hash of lock files (package-lock.json, pom.xml) to invalidate cache when dependencies change. Set TTL (time-to-live) for automatic expiration.',
+    codeExample: `# Caching Examples
+
+# npm cache in CI
+path: ~/.npm
+key: based-on-package-lock.json-hash
+
+# Docker Layer Caching
+FROM node:18
+COPY package*.json ./
+RUN npm ci  # Cached if package.json unchanged
+COPY . .
+RUN npm run build`,
+    priority: null
+  },
+  {
+    id: 321,
+    category: 'CI/CD',
+    question: 'How do you manage secrets and credentials in CI/CD?',
+    answer: 'Never hardcode secrets in code or pipeline configs. Use secret management tools: GitHub Secrets, GitLab Variables, HashiCorp Vault, AWS Secrets Manager, Azure Key Vault. Encrypt secrets at rest and in transit. Rotate regularly. Limit access with least privilege.',
+    explanation: '**Secret Management Best Practices:**\n\n• **Storage:** Use dedicated secret managers, not environment variables in code\n• **Access:** Principle of least privilege, role-based access\n• **Rotation:** Automatic rotation policies\n• **Audit:** Log all secret access\n• **Encryption:** At rest and in transit\n• **Scanning:** Detect hardcoded secrets with tools like git-secrets, trufflehog\n\n**Never Do:** Commit .env files, print secrets in logs, use default credentials.',
+    codeExample: `# Secret Management Examples
+
+# GitHub Actions - Using Secrets
+env:
+  AWS_ACCESS_KEY_ID: (stored in GitHub Secrets)
+  AWS_SECRET_ACCESS_KEY: (stored in GitHub Secrets)
+
+# HashiCorp Vault Integration
+vault read secret/data/myapp/prod
+
+# Best Practice: Short-lived credentials
+# Use IAM roles, OIDC tokens instead of long-lived keys`,
+    priority: null
+  },
+  {
+    id: 322,
+    category: 'CI/CD',
+    question: 'What are deployment strategies and when to use each?',
+    answer: 'Common strategies: Rolling Update (gradual replacement), Blue-Green (two identical environments), Canary (gradual traffic shift), Recreate (stop old, start new), Shadow (mirror traffic). Choose based on risk tolerance, infrastructure cost, and complexity.',
+    explanation: '**Strategy Comparison:**\n\n• **Rolling:** Low cost, gradual, some overlap. Good for most cases.\n• **Blue-Green:** Zero downtime, instant rollback, 2x cost. Critical apps.\n• **Canary:** Real user testing, gradual risk. High-traffic apps.\n• **Recreate:** Simple, downtime involved. Dev/test environments.\n• **Shadow:** Zero risk, complex setup. Testing major changes.\n\nConsider: Downtime tolerance, budget, complexity, rollback speed, testing requirements.',
+    codeExample: `# Kubernetes Rolling Update
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+# Istio Canary
+http:
+  - route:
+    - destination:
+        host: myapp
+        subset: v1
+      weight: 90
+    - destination:
+        host: myapp
+        subset: v2
+      weight: 10`,
+    priority: null
+  },
+  {
+    id: 323,
+    category: 'CI/CD',
+    question: 'How do you implement automated rollback in CI/CD?',
+    answer: 'Automated rollback reverts to previous version when deployment fails or metrics degrade. Implement using health checks, metric thresholds (error rate, latency), canary analysis, and deployment hooks. Critical for maintaining availability.',
+    explanation: '**Rollback Triggers:**\n\n• Health check failures\n• Error rate spikes (>5%)\n• Latency increase (>50%)\n• CPU/memory anomalies\n• Business metric drops\n• Failed smoke tests\n\n**Implementation:** Keep previous version available, use deployment labels/tags, automate rollback commands, test rollback procedures regularly, document rollback runbooks.',
+    codeExample: `# Kubernetes Automated Rollback
+kubectl rollout status deployment/myapp --timeout=300s
+if [ $? -ne 0 ]; then
+  echo "Deployment failed, rolling back..."
+  kubectl rollout undo deployment/myapp
+fi
+
+# Argo Rollouts - Canary Analysis
+analysis:
+  successfulRunHistoryLimit: 3
+  unsuccessfulRunHistoryLimit: 3
+  metrics:
+    - name: error-rate
+      successCondition: result[0] <= 0.05`,
+    priority: null
+  },
+  {
+    id: 324,
+    category: 'CI/CD',
+    question: 'What is shift-left testing in CI/CD?',
+    answer: 'Shift-left testing moves testing earlier in the development lifecycle. Instead of testing only at the end, integrate testing throughout: unit tests during coding, integration tests in CI, security scans pre-commit, performance tests in staging. Catches bugs earlier, reduces costs.',
+    explanation: '**Testing Pyramid:**\n\n• **Base (70%):** Unit tests - fast, isolated, cheap\n• **Middle (20%):** Integration tests - component interaction\n• **Top (10%):** E2E tests - full user journeys, slow, expensive\n\n**Shift-Left Practices:** Pre-commit hooks, IDE linting, local test runners, contract testing, security scanning in PRs, performance baselines. Goal: Fail fast, fail early.',
+    codeExample: `# Pre-commit Hook Example
+#!/bin/bash
+# Run before commit
+npm run lint
+npm test -- --changedSince=HEAD
+npm run security-scan
+
+# If any fail, commit is rejected
+# Catches issues before they reach CI`,
+    priority: null
+  },
+  {
+    id: 325,
+    category: 'CI/CD',
+    question: 'What are CI/CD anti-patterns to avoid?',
+    answer: 'Common anti-patterns: Manual steps in pipeline, flaky tests, long-running pipelines (>30 min), hardcoded credentials, no rollback strategy, deploying on Fridays, skipping tests to save time, monolithic pipelines, no monitoring, treating staging differently than production.',
+    explanation: '**Anti-Patterns & Solutions:**\n\n• **Manual Steps** → Automate everything\n• **Flaky Tests** → Fix or remove unreliable tests\n• **Slow Pipelines** → Parallelize, cache, optimize\n• **Hardcoded Secrets** → Use secret managers\n• **No Rollback** → Implement automated rollback\n• **Friday Deploys** → Deploy anytime with confidence\n• **Skip Tests** → Never compromise quality\n• **Monolithic Pipeline** → Split into smaller pipelines\n• **No Monitoring** → Track pipeline metrics\n• **Env Drift** → Use IaC for all environments',
+    codeExample: `# Bad: Manual approval for every deployment
+# Good: Automated with feature flags
+
+# Bad: Pipeline takes 1 hour
+# Good: Optimized to <10 minutes
+
+# Bad: Different configs per environment
+# Good: Same config, different values via IaC`,
+    priority: null
+  },
+  {
+    id: 326,
+    category: 'CI/CD',
+    question: 'How do you monitor CI/CD pipeline health?',
+    answer: 'Track DORA metrics (deployment frequency, lead time, change failure rate, MTTR), pipeline success rate, build duration, test coverage, deployment success rate, mean time to detect failures. Use dashboards and alerts for pipeline health.',
+    explanation: '**Key Metrics to Track:**\n\n• **Pipeline Success Rate:** % of successful runs\n• **Build Duration:** Average time per stage\n• **Deployment Frequency:** How often you deploy\n• **Lead Time:** Commit to production time\n• **Change Failure Rate:** % causing incidents\n• **MTTR:** Time to recover from failures\n• **Test Coverage:** Code coverage trends\n• **Flaky Test Rate:** Unstable tests count\n\n**Tools:** Grafana dashboards, Prometheus metrics, CI tool analytics, custom dashboards.',
+    codeExample: `# DORA Metrics Dashboard
+
+# Deployment Frequency
+COUNT(deployments) per day
+
+# Lead Time
+AVG(time from commit to production)
+
+# Change Failure Rate
+SUM(failed_deployments) / SUM(total_deployments)
+
+# MTTR
+AVG(time from failure to recovery)
+
+# Alert if pipeline success rate < 95%`,
+    priority: null
+  },
+  {
+    id: 327,
+    category: 'CI/CD',
+    question: 'What is trunk-based development and how does it impact CI/CD?',
+    answer: 'Trunk-based development uses short-lived branches (<2 days) merged frequently to main branch, with feature flags controlling visibility. Enables continuous integration, reduces merge conflicts, accelerates delivery. Requires strong automated testing and mature CI/CD.',
+    explanation: '**Benefits for CI/CD:**\n\n• Always releasable main branch\n• Faster feedback loops\n• Reduced integration hell\n• Smaller, safer changes\n• True continuous delivery\n\n**Requirements:** Excellent test coverage, feature flag infrastructure, disciplined commits, automated quality gates, team buy-in. Used by Google, Facebook, Amazon for high velocity.',
+    codeExample: `# Trunk-Based Workflow
+
+# 1. Pull latest main
+git pull origin main
+
+# 2. Create tiny branch (<2 days)
+git checkout -b feature/tiny-change
+
+# 3. Make small commit
+git commit -m "Add validation"
+
+# 4. Push and create PR
+git push origin feature/tiny-change
+
+# 5. Merge same day with feature flag
+if (featureFlags.isEnabled('new-feature')) {
+  // new code
+} else {
+  // old code
+}`,
+    priority: null
+  },
+  {
+    id: 328,
+    category: 'CI/CD',
+    question: 'How do you handle configuration management across environments in CI/CD?',
+    answer: 'Use environment-specific configuration separated from code. Store configs in ConfigMaps (K8s), environment variables, or config files. Use tools like Helm values, Kustomize overlays, or Terraform workspaces. Never commit secrets. Validate configs in pipeline.',
+    explanation: '**Configuration Strategies:**\n\n• **12-Factor App:** Config in environment variables\n• **Helm Values:** Parameterized templates per environment\n• **Kustomize:** Overlays for dev/staging/prod\n• **Terraform Workspaces:** Separate state per env\n• **Config Servers:** Spring Cloud Config, Consul\n\n**Best Practices:** Same artifact across environments, validate configs early, use schemas, document required vars, fallback defaults, encrypt sensitive configs.',
+    codeExample: `# Helm Values Structure
+values.yaml          # Defaults
+values-dev.yaml      # Dev overrides
+values-staging.yaml  # Staging overrides
+values-prod.yaml     # Production overrides
+
+# Install with environment-specific values
+helm install myapp -f values-prod.yaml
+
+# Kubernetes ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_URL: postgres://db:5432/myapp`,
+    priority: null
+  },
+  {
+    id: 329,
+    category: 'CI/CD',
+    question: 'What is progressive delivery and how does it differ from traditional deployment?',
+    answer: 'Progressive delivery gradually exposes new versions to users with automated verification and rollback. Includes canary releases, A/B testing, feature flags. Traditional deployment is all-or-nothing. Progressive delivery reduces risk, enables data-driven decisions.',
+    explanation: '**Progressive Delivery Techniques:**\n\n• **Canary Releases:** Gradual traffic shift with monitoring\n• **A/B Testing:** Compare versions with real users\n• **Feature Flags:** Toggle features per user segment\n• **Blue-Green:** Instant switch with rollback option\n\n**Benefits:** Lower risk, faster detection of issues, data-driven decisions, user segmentation, controlled blast radius. **Tools:** Argo Rollouts, Istio, LaunchDarkly, Split.io.',
+    codeExample: `# Progressive Delivery Flow
+
+# 1. Deploy to 1% of users
+canary.weight: 1%
+
+# 2. Monitor metrics for 5 minutes
+# - Error rate < 1%
+# - Latency p95 < 200ms
+
+# 3. If healthy, increase to 10%
+canary.weight: 10%
+
+# 4. Continue: 25% → 50% → 100%
+
+# 5. Auto-rollback if metrics degrade`,
+    priority: null
+  },
+  {
+    id: 330,
+    category: 'CI/CD',
+    question: 'How do you implement security scanning in CI/CD pipelines?',
+    answer: 'Integrate security scanning at multiple stages: SAST (static analysis) in build, SCA (dependency scanning) for vulnerabilities, DAST (dynamic analysis) in staging, container scanning for images, secret scanning for credentials. Shift security left.',
+    explanation: '**Security Scanning Types:**\n\n• **SAST:** SonarQube, Checkmarx - Code vulnerabilities\n• **SCA:** Snyk, Dependabot - Dependency vulnerabilities\n• **DAST:** OWASP ZAP, Burp Suite - Runtime vulnerabilities\n• **Container:** Trivy, Clair - Image vulnerabilities\n• **Secrets:** git-secrets, trufflehog - Hardcoded credentials\n• **IaC:** tfsec, checkov - Infrastructure misconfigurations\n\n**Best Practice:** Fail pipeline on critical vulnerabilities, generate reports, track trends, prioritize fixes.',
+    codeExample: `# Security Scanning Pipeline
+
+stages:
+  - sast:
+      script: sonar-scanner
+  
+  - sca:
+      script: snyk test --severity-threshold=high
+  
+  - container-scan:
+      script: trivy image myapp:latest
+  
+  - secret-scan:
+      script: git-secrets --scan
+  
+  - dast:
+      script: zap-baseline.py -t https://staging.example.com`,
+    priority: null
+  },
+  {
+    id: 331,
+    category: 'CI/CD',
+    question: 'What are ephemeral environments and their benefits in CI/CD?',
+    answer: 'Ephemeral environments are temporary, on-demand environments created for each pull request or feature branch. Automatically provisioned, used for testing, then destroyed. Benefits: isolated testing, faster feedback, reduced environment conflicts, cost optimization.',
+    explanation: '**Use Cases:**\n\n• Preview deployments for PRs\n• Integration testing with real dependencies\n• Stakeholder demos\n• QA testing specific features\n• Performance testing isolated changes\n\n**Implementation:** Use Kubernetes namespaces, Docker Compose, or cloud services. Automate provisioning/destruction. Clean up after merge/close. **Tools:** Vercel Preview, Netlify Deploy Previews, Kubernetes + ArgoCD, Okteto.',
+    codeExample: `# Ephemeral Environment Workflow
+
+# On PR creation:
+1. Trigger pipeline
+2. Provision namespace: pr-123
+3. Deploy application
+4. Generate preview URL: pr-123.example.com
+5. Run E2E tests against preview
+6. Share URL with stakeholders
+
+# On PR merge/close:
+1. Destroy namespace
+2. Release resources
+3. Clean up DNS records
+
+# Cost: Only pay while PR is open`,
+    priority: null
+  },
+  {
+    id: 332,
+    category: 'CI/CD',
+    question: 'How do you optimize CI/CD pipeline execution time?',
+    answer: 'Optimize by: parallelizing jobs, caching dependencies, using incremental builds, splitting large test suites, optimizing Docker builds (multi-stage, layer caching), using faster runners, conditional execution, and removing unnecessary steps. Target <10 minute pipelines.',
+    explanation: '**Optimization Techniques:**\n\n• **Parallelization:** Run independent jobs concurrently\n• **Caching:** Dependencies, build outputs, Docker layers\n• **Incremental Builds:** Only rebuild changed components\n• **Test Optimization:** Run affected tests only, parallel test execution\n• **Docker Optimization:** Multi-stage builds, .dockerignore, layer caching\n• **Resource Optimization:** Right-size runners, spot instances\n• **Conditional Execution:** Skip irrelevant stages\n• **Artifact Reuse:** Don\'t rebuild unchanged components',
+    codeExample: `# Optimization Examples
+
+# 1. Parallel test execution
+pytest -n auto  # Auto-detect CPU cores
+
+# 2. Docker layer caching
+COPY package.json .
+RUN npm ci  # Cached unless package.json changes
+COPY . .
+
+# 3. Conditional execution
+if: changes-ignore('docs/**')
+
+# 4. Incremental builds
+nx affected:test  # Test only changed apps`,
+    priority: null
+  },
+  {
+    id: 333,
+    category: 'CI/CD',
+    question: 'What is GitOps and how does it enhance CI/CD?',
+    answer: 'GitOps uses Git as the single source of truth for infrastructure and applications. Automated operators continuously sync cluster state with Git repository. Enhances CI/CD with audit trails, easy rollbacks (git revert), disaster recovery, and declarative desired state.',
+    explanation: '**GitOps Principles:**\n\n• **Declarative:** Desired state in Git\n• **Versioned:** All changes tracked\n• **Automated:** Operators sync automatically\n• **Continuous:** Constant reconciliation loop\n\n**CI/CD Enhancement:** Traditional CI/CD pushes changes (imperative). GitOps pulls changes (declarative). Benefits: No drift, complete history, peer review via PRs, self-healing clusters. **Tools:** ArgoCD, Flux, Jenkins X.',
+    codeExample: `# GitOps Workflow
+
+# Traditional CI/CD
+Developer → CI → CD → kubectl apply (push)
+
+# GitOps
+Developer → PR → Merge → Git → ArgoCD detects → Sync (pull)
+
+# Benefits:
+# - Audit trail in Git history
+# - Rollback: git revert
+# - Disaster recovery: clone repo
+# - No manual kubectl commands`,
+    priority: null
+  },
+  {
+    id: 334,
+    category: 'CI/CD',
+    question: 'How do you handle multi-service deployments in CI/CD?',
+    answer: 'For microservices, use independent pipelines per service, contract testing for API compatibility, service mesh for traffic management, feature flags for coordinated releases, and deployment orchestration tools. Avoid monolithic deployment pipelines.',
+    explanation: '**Multi-Service Strategies:**\n\n• **Independent Pipelines:** Each service has own CI/CD\n• **Contract Testing:** Ensure API compatibility (Pact)\n• **Consumer-Driven Contracts:** Test from consumer perspective\n• **Service Mesh:** Manage inter-service communication\n• **Feature Flags:** Coordinate releases without coupling\n• **Orchestration:** ArgoCD Applications, Spinnaker pipelines\n\n**Challenges:** Version compatibility, distributed tracing, cascading failures, database migrations. **Solution:** Backward compatibility, circuit breakers, expand-contract pattern.',
+    codeExample: `# Independent Service Pipelines
+
+# Service A Pipeline
+build → test → deploy-a-v1.2.0
+
+# Service B Pipeline  
+build → test → deploy-b-v2.0.0
+
+# Contract Testing
+pact-verifier --provider-base-url=http://service-a
+
+# Feature Flag for Coordination
+if (flags.isEnabled('new-integration')) {
+  serviceA.callNewEndpoint()
+}`,
+    priority: null
+  },
+  {
+    id: 335,
+    category: 'CI/CD',
+    question: 'What are the key differences between Jenkins, GitHub Actions, and GitLab CI?',
+    answer: 'Jenkins: Self-hosted, highly customizable, large plugin ecosystem, complex maintenance. GitHub Actions: Native GitHub integration, marketplace of actions, simple YAML, free tier generous. GitLab CI: Built into GitLab, all-in-one DevOps platform, auto DevOps features, container registry included.',
+    explanation: '**Comparison:**\n\n• **Setup:** Jenkins (complex) vs Actions/GitLab (simple)\n• **Cost:** Jenkins (infrastructure) vs Actions (minutes) vs GitLab (included)\n• **Flexibility:** Jenkins (unlimited) vs Actions/GitLab (good for most)\n• **Maintenance:** Jenkins (high) vs Actions/GitLab (managed)\n• **Integration:** Actions (GitHub) vs GitLab CI (GitLab) vs Jenkins (any)\n• **Scalability:** Jenkins (manual) vs Actions/GitLab (auto)\n\n**Choose Jenkins** for complex requirements, on-premise. **Choose Actions** for GitHub projects. **Choose GitLab CI** for all-in-one solution.',
+    codeExample: `# Tool Selection Guide
+
+# Jenkins - When you need:
+# - Complex workflows
+# - On-premise control
+# - Custom plugins
+# - Legacy system integration
+
+# GitHub Actions - When you need:
+# - Simple setup
+# - GitHub integration
+# - Community actions
+# - Pay-per-use pricing
+
+# GitLab CI - When you need:
+# - All-in-one platform
+# - Built-in container registry
+# - Auto DevOps
+# - Single vendor solution`,
+    priority: null
+  },
+  {
+    id: 336,
+    category: 'CI/CD',
+    question: 'How do you implement compliance and audit requirements in CI/CD?',
+    answer: 'Implement compliance through: mandatory code reviews, approval gates, audit logs, signed commits, immutable artifacts, policy-as-code (OPA), security scanning, separation of duties, and compliance-as-code frameworks. Document everything in pipeline.',
+    explanation: '**Compliance Requirements:**\n\n• **Audit Trail:** Log all pipeline actions, who approved what\n• **Approvals:** Mandatory reviews for production\n• **Signed Commits:** GPG signatures verify authorship\n• **Immutable Artifacts:** Once built, never modify\n• **Policy Enforcement:** OPA, Sentinel for guardrails\n• **Segregation:** Different teams for dev vs deploy\n• **Retention:** Keep logs/artifacts per regulations\n\n**Frameworks:** SOC 2, HIPAA, PCI-DSS, GDPR. Automate compliance checks.',
+    codeExample: `# Compliance Pipeline
+
+stages:
+  - code-review:
+      rules:
+        - if: $CI_COMMIT_BRANCH == "main"
+          when: manual  # Require approval
+  
+  - security-scan:
+      script: 
+        - sonar-scanner
+        - snyk test --fail-on=all
+  
+  - compliance-check:
+      script: opa eval --data policy.rego
+  
+  - sign-artifact:
+      script: cosign sign myapp:latest
+  
+  - audit-log:
+      script: log-deployment deployment-info`,
+    priority: null
+  },
+  {
+    id: 337,
+    category: 'CI/CD',
+    question: 'What is chaos engineering in CI/CD and why is it important?',
+    answer: 'Chaos engineering intentionally injects failures in CI/CD pipelines to test resilience: kill pods, add latency, fill disks, corrupt networks. Validates that systems handle failures gracefully. Important for building confidence in reliability and identifying weaknesses before production incidents.',
+    explanation: '**Chaos Experiments in CI/CD:**\n\n• **Pod Kill:** Test auto-restart and rescheduling\n• **Network Latency:** Verify timeout handling\n• **Disk Fill:** Test disk pressure responses\n• **CPU Stress:** Validate resource limits\n• **Dependency Failure:** Test circuit breakers\n\n**Integration:** Run chaos experiments in staging pipeline before production deployment. **Tools:** Chaos Mesh, LitmusChaos, Gremlin. Start small, measure impact, learn and improve.',
+    codeExample: `# Chaos Experiment in Pipeline
+
+stages:
+  - deploy-staging
+  - chaos-test:
+      script: |
+        # Kill random pods
+        chaos-mesh pod-kill --namespace staging
+        
+        # Add network delay
+        chaos-mesh network-delay --latency 100ms
+        
+        # Wait and verify recovery
+        sleep 60
+        verify-health-endpoint
+  
+  - proceed-to-prod:
+      only: if chaos-test passes`,
+    priority: null
+  },
+  {
+    id: 338,
+    category: 'CI/CD',
+    question: 'How do you handle long-running tests in CI/CD pipelines?',
+    answer: 'Strategies: split test suites (fast unit tests in CI, slow E2E in separate pipeline), parallel execution, test selection (run only affected tests), quarantine flaky tests, use test containers for isolation, implement test impact analysis, and run comprehensive suites nightly.',
+    explanation: '**Test Optimization Strategies:**\n\n• **Pyramid Approach:** 70% unit (fast), 20% integration, 10% E2E (slow)\n• **Parallel Execution:** Distribute tests across runners\n• **Test Impact Analysis:** Run only tests affected by changes\n• **Quarantine:** Move flaky tests to separate suite\n• **Test Containers:** Isolated, reproducible environments\n• **Nightly Runs:** Full suite overnight, quick feedback during day\n• **Sampling:** Run subset of E2E tests on every commit\n\n**Goal:** Keep CI pipeline under 10 minutes.',
+    codeExample: `# Test Strategy
+
+# CI Pipeline (Fast - <10 min)
+- Unit tests (parallel)
+- Integration tests (critical paths only)
+- Lint and type check
+
+# Nightly Pipeline (Comprehensive)
+- Full E2E test suite
+- Performance tests
+- Security scans
+- Cross-browser tests
+
+# Test Impact Analysis
+nx affected:test --base=main~1 --head=HEAD`,
+    priority: null
+  },
+  {
+    id: 339,
+    category: 'CI/CD',
+    question: 'What are the best practices for CI/CD in microservices architecture?',
+    answer: 'Best practices: independent pipelines per service, contract testing for APIs, decentralized deployment, service versioning, feature flags for coordination, distributed tracing, centralized logging, circuit breakers, and automated rollback per service. Avoid synchronized deployments.',
+    explanation: '**Microservices CI/CD Principles:**\n\n• **Independence:** Each service deploys independently\n• **Contract Testing:** Ensure API compatibility (Pact)\n• **Decentralized:** Teams own their pipelines\n• **Versioning:** Semantic versioning for APIs\n• **Observability:** Tracing, logging, metrics per service\n• **Resilience:** Circuit breakers, retries, timeouts\n• **Coordination:** Feature flags, not synchronized deploys\n• **Database:** Per-service databases, expand-contract migrations\n\n**Avoid:** Monorepo with single pipeline, shared databases, synchronized releases.',
+    codeExample: `# Microservices Pipeline Pattern
+
+# Each service has independent pipeline
+service-a/
+  .github/workflows/ci.yml  # Independent
+  
+service-b/
+  .github/workflows/ci.yml  # Independent
+
+# Contract Testing
+pact-broker publish pacts/
+pact-broker verify
+
+# Feature Flag for Coordination
+if (flags.isEnabled('new-api')) {
+  callServiceBNewEndpoint()
+} else {
+  callServiceBOldEndpoint()
+}`,
+    priority: null
+  },
+  {
+    id: 340,
+    category: 'CI/CD',
+    question: 'How do you implement zero-downtime deployments in CI/CD?',
+    answer: 'Zero-downtime deployments ensure continuous availability during updates. Strategies: blue-green (switch traffic instantly), rolling updates (gradual replacement with health checks), canary (gradual traffic shift), and load balancer manipulation. Requires backward-compatible changes and proper health checks.',
+    explanation: '**Zero-Downtime Techniques:**\n\n• **Health Checks:** Readiness probes before receiving traffic\n• **Graceful Shutdown:** Finish requests before stopping\n• **Connection Draining:** Wait for active connections\n• **Backward Compatibility:** Old and new versions work together\n• **Load Balancer:** Route traffic intelligently\n• **Database:** Expand-contract pattern for schema changes\n\n**Verification:** Monitor error rates, latency, throughput during deployment. Auto-rollback if degradation detected.',
+    codeExample: `# Kubernetes Zero-Downtime Deployment
+
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1       # One extra pod
+      maxUnavailable: 0 # Zero unavailable
+  template:
+    spec:
+      containers:
+      - name: app
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "30"]  # Graceful shutdown`,
+    priority: null
+  },
   // Git Questions
   {
     id: 216,
@@ -9671,4 +10257,599 @@ npx husky init`,
 # SELECT name, ST_Distance(coordinates, point) FROM locations;`,
     priority: null
   },
+  // DevOps Questions
+  {
+    id: 284,
+    category: 'DevOps',
+    question: 'What is DevOps and why is it important?',
+    answer: 'DevOps is a cultural and professional movement that combines development (Dev) and operations (Ops) to improve collaboration, automate processes, and deliver software faster and more reliably.',
+    explanation: 'Traditional silos between developers and operations teams led to slow releases and blame games. DevOps breaks these barriers through Culture (shared responsibility), Automation (CI/CD pipelines, IaC), Measurement (monitoring, metrics), and Sharing (knowledge transfer). Benefits include faster time-to-market, improved deployment frequency, lower failure rates, and quicker recovery times.',
+    codeExample: `# DevOps Practices
+# 1. Infrastructure as Code (Terraform)
+# 2. CI/CD Pipelines (Jenkins/GitHub Actions)
+# 3. Automated Testing
+# 4. Monitoring & Observability
+# 5. Container Orchestration (Kubernetes)`,
+    priority: null
+  },
+  {
+    id: 285,
+    category: 'DevOps',
+    question: 'Explain the CALMS framework in DevOps.',
+    answer: 'CALMS stands for Culture, Automation, Lean, Measurement, and Sharing - the five pillars of DevOps transformation.',
+    explanation: '**Culture:** Break down silos, foster collaboration, embrace failure as learning. **Automation:** Automate repetitive tasks (builds, tests, deployments). **Lean:** Eliminate waste, optimize flow, reduce batch sizes. **Measurement:** Track DORA metrics (deployment frequency, lead time, change failure rate, MTTR). **Sharing:** Share knowledge, tools, practices across teams.',
+    codeExample: `# CALMS Implementation
+# Culture: Pair programming, blameless postmortems
+# Automation: Jenkins pipelines, Terraform
+# Lean: Reduce sprint cycles, continuous improvement
+# Measurement: DORA metrics dashboards
+# Sharing: Retrospectives, knowledge sessions`,
+    priority: null
+  },
+  {
+    id: 286,
+    category: 'DevOps',
+    question: 'What are DORA metrics and why do they matter?',
+    answer: 'DORA (DevOps Research and Assessment) metrics measure software delivery performance: Deployment Frequency, Lead Time for Changes, Change Failure Rate, and Mean Time to Recovery (MTTR).',
+    explanation: '**Elite performers achieve:** Deployment Frequency: Multiple deploys per day. Lead Time: <1 hour from commit to production. Change Failure Rate: 0-15%. MTTR: <1 hour to restore service. These metrics predict organizational performance better than any other factors. Google\'s State of DevOps Report shows elite performers are 208x more likely to exceed profitability goals.',
+    codeExample: `# DORA Metrics Tracking
+# 1. Deployment Frequency: Count deployments/day
+# 2. Lead Time: Time from commit to production
+# 3. Change Failure Rate: % of deployments causing incidents
+# 4. MTTR: Time to recover from failures
+# Tools: Prometheus, Grafana, DORA dashboards`,
+    priority: null
+  },
+  {
+    id: 287,
+    category: 'DevOps',
+    question: 'What is Infrastructure as Code (IaC) and its benefits?',
+    answer: 'Infrastructure as Code manages and provisions infrastructure through machine-readable definition files rather than manual processes or interactive configuration tools.',
+    explanation: '**Benefits:** Version Control (track changes in Git), Reproducibility (identical environments), Speed (provision in minutes), Documentation (code as living docs), Collaboration (code reviews), Disaster Recovery (rebuild from code). Popular tools: Terraform, AWS CloudFormation, Ansible, Pulumi.',
+    codeExample: `# Terraform Example
+resource "aws_instance" "web_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
+  
+  tags = {
+    Name = "production-web-server"
+  }
+}`,
+    priority: null
+  },
+  {
+    id: 288,
+    category: 'DevOps',
+    question: 'Compare Terraform and Ansible. When would you use each?',
+    answer: 'Terraform is primarily for infrastructure provisioning (creating resources). Ansible is for configuration management (configuring existing resources). They\'re complementary, not competitors.',
+    explanation: '**Terraform:** Declarative, state management, creates cloud resources (VPCs, EC2, RDS). **Ansible:** Procedural, agentless, configures servers (install software, start services). **Best Practice:** Use Terraform to provision infrastructure, then Ansible to configure it.',
+    codeExample: `# Terraform (Provisioning)
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+# Ansible (Configuration)
+- hosts: webservers
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present`,
+    priority: null
+  },
+  {
+    id: 289,
+    category: 'DevOps',
+    question: 'What is CI/CD and explain the pipeline stages?',
+    answer: 'CI/CD (Continuous Integration/Continuous Delivery or Deployment) automates the software delivery process from code commit to production deployment.',
+    explanation: '**Typical Stages:** 1. Source Code Management (Git), 2. Build (compile, dependencies), 3. Unit Tests, 4. Code Quality (linting, security scanning), 5. Integration Tests, 6. Build Docker Image, 7. Push to Registry, 8. Deploy to Staging, 9. Automated Testing, 10. Approval Gate (optional), 11. Deploy to Production, 12. Monitoring & Rollback. **Tools:** Jenkins, GitLab CI, GitHub Actions, CircleCI, ArgoCD.',
+    codeExample: `# CI/CD Pipeline Flow
+# Code → Build → Test → Quality Check → 
+# Docker Build → Push to Registry → 
+# Deploy Staging → E2E Tests → 
+# Approve → Deploy Production → Monitor`,
+    priority: null
+  },
+  {
+    id: 290,
+    category: 'DevOps',
+    question: 'What is the difference between Continuous Delivery and Continuous Deployment?',
+    answer: 'Continuous Delivery requires manual approval before production deployment. Continuous Deployment automatically deploys every change that passes tests to production without human intervention.',
+    explanation: '**Continuous Delivery:** Code → Build → Test → Stage → [Manual Approval] → Production. Common in regulated industries (finance, healthcare). **Continuous Deployment:** Code → Build → Test → Stage → Production (automatic). Used by Netflix, Amazon, Facebook. Requires excellent test coverage, monitoring, and rollback capabilities.',
+    codeExample: `# Continuous Delivery
+# Pipeline stops for manual approval before production
+
+# Continuous Deployment
+# Fully automated - every passing change goes to production
+# Requires: Feature flags, comprehensive testing, auto-rollback`,
+    priority: null
+  },
+  {
+    id: 291,
+    category: 'DevOps',
+    question: 'Explain blue-green deployment strategy.',
+    answer: 'Blue-green deployment maintains two identical production environments. One serves live traffic (blue), while the other (green) receives the new version. Traffic switches entirely once green is verified.',
+    explanation: '**Process:** 1. Blue (v1.0) serving 100% traffic. 2. Deploy v2.0 to Green. 3. Test Green environment. 4. Switch load balancer to Green. 5. Monitor metrics. 6. Instant rollback to Blue if needed. **Advantages:** Zero downtime, instant rollback, full testing. **Disadvantages:** Double infrastructure cost, database migrations must be backward-compatible.',
+    codeExample: `# Kubernetes Blue-Green
+# kubectl apply -f deployment-v2.yaml  # Deploy to green
+# kubectl get pods -l app=myapp,version=v2  # Verify
+# kubectl patch service myapp -p '{"spec":{"selector":{"version":"v2"}}}'  # Switch`,
+    priority: null
+  },
+  {
+    id: 292,
+    category: 'DevOps',
+    question: 'What is canary deployment and when should you use it?',
+    answer: 'Canary deployment gradually rolls out changes to a small subset of users before full deployment, allowing risk mitigation through real-world testing.',
+    explanation: '**Process:** Deploy new version, route 5% traffic to it (canary), monitor metrics (error rate, latency), if good increase to 25%, 50%, 100%, if issues detected auto-rollback. **Use Cases:** High-traffic applications, testing performance impact, validating features in production, A/B testing. **Implementation:** Istio, NGINX, AWS ALB weighted routing.',
+    codeExample: `# Istio Canary Configuration
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+spec:
+  http:
+  - route:
+    - destination:
+        host: myapp
+        subset: v1
+      weight: 90
+    - destination:
+        host: myapp
+        subset: v2
+      weight: 10  # 10% canary traffic`,
+    priority: null
+  },
+  {
+    id: 293,
+    category: 'DevOps',
+    question: 'What is GitOps and how does it differ from traditional CI/CD?',
+    answer: 'GitOps uses Git as the single source of truth for both infrastructure and applications. Changes are made via pull requests, and automated operators sync the cluster state with Git.',
+    explanation: '**Traditional CI/CD:** Developer → CI Pipeline → CD Pipeline → Production (push model). **GitOps:** Developer → Pull Request → Merge to Git → Operator detects change → Syncs cluster (pull model). **Key Principles:** Declarative, Versioned, Automated, Continuous reconciliation. **Tools:** ArgoCD, Flux. Benefits include audit trail, easy rollback (git revert), disaster recovery.',
+    codeExample: `# GitOps Workflow
+# 1. Update Kubernetes manifests in Git
+# 2. Create PR, review, merge
+# 3. ArgoCD detects change automatically
+# 4. ArgoCD syncs cluster to match Git
+# 5. Cluster state = Git state (always)`,
+    priority: null
+  },
+  {
+    id: 294,
+    category: 'DevOps',
+    question: 'Explain the concept of immutable infrastructure.',
+    answer: 'Immutable infrastructure means servers are never modified after deployment. Any change requires replacing the entire server with a new one built from updated configuration.',
+    explanation: '**Mutable (Traditional):** SSH to server, install packages manually → causes configuration drift,难以 reproduce issues. **Immutable:** Update Dockerfile/AMI template → build new image → replace old servers → destroy old servers. **Benefits:** Consistency (every server identical), Reliability (no drift), Simplicity, Easy rollback. **Technologies:** Docker containers, AWS AMIs, Packer, Terraform.',
+    codeExample: `# Immutable Infrastructure with Docker
+FROM ubuntu:20.04
+RUN apt-get update && apt-get install -y nginx
+COPY config/nginx.conf /etc/nginx/nginx.conf
+CMD ["nginx", "-g", "daemon off;"]
+
+# Any change: rebuild image, replace containers`,
+    priority: null
+  },
+  {
+    id: 295,
+    category: 'DevOps',
+    question: 'What is observability and how does it differ from monitoring?',
+    answer: 'Monitoring tells you when something is wrong. Observability helps you understand WHY it\'s wrong through logs, metrics, and traces (the three pillars).',
+    explanation: '**Monitoring (What):** CPU usage > 80%, Error rate > 5%, Alerts when thresholds exceeded. **Observability (Why):** Logs (detailed event records), Metrics (aggregated numerical data), Traces (request journey through distributed systems). **Example:** Monitoring alert: "API latency increased to 5s". Observability investigation: Check traces (slows at DB), check logs (slow query), check metrics (connections at max) → Root cause: Connection pool exhaustion.',
+    codeExample: `# Three Pillars of Observability
+# 1. Logs: ELK Stack, Splunk, Grafana Loki
+# 2. Metrics: Prometheus, Grafana, Datadog
+# 3. Traces: Jaeger, Zipkin, AWS X-Ray, OpenTelemetry`,
+    priority: null
+  },
+  {
+    id: 296,
+    category: 'DevOps',
+    question: 'What is Prometheus and how does it work?',
+    answer: 'Prometheus is an open-source monitoring system that collects metrics using a pull model, stores them in a time-series database, and provides powerful query language (PromQL) for analysis.',
+    explanation: '**Architecture:** 1. Targets expose metrics at /metrics endpoint. 2. Prometheus Server scrapes metrics periodically. 3. Time-Series DB stores metrics with timestamps. 4. PromQL for queries. 5. Alertmanager sends alerts. 6. Grafana for visualization. **Strengths:** Multi-dimensional data model, powerful queries, no dependencies, great for Kubernetes.',
+    codeExample: `# PromQL Queries
+# Request rate over 5 minutes
+rate(http_requests_total[5m])
+
+# 95th percentile latency
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+# Alert condition
+up == 0  # Instance is down`,
+    priority: null
+  },
+  {
+    id: 297,
+    category: 'DevOps',
+    question: 'What is Grafana and why is it used with Prometheus?',
+    answer: 'Grafana is an open-source visualization and analytics platform that creates dashboards from various data sources including Prometheus, making metrics human-readable and actionable.',
+    explanation: '**Why Grafana + Prometheus:** Prometheus collects and stores metrics, provides query engine. Grafana creates beautiful dashboards, supports multiple data sources, provides alerting, templating, and annotations. **Key Features:** Customizable panels (graphs, tables, heatmaps), multi-source support (Prometheus, InfluxDB, Elasticsearch), visual alert rules, dynamic variables, deployment annotations.',
+    codeExample: `# Grafana Dashboard Panels
+# 1. Request Rate: Graph showing requests/second
+# 2. Error Rate: Percentage of 5xx errors
+# 3. Latency: p50, p95, p99 response times
+# 4. Saturation: CPU, memory, disk usage
+# 5. Top Endpoints: Table of slowest APIs`,
+    priority: null
+  },
+  {
+    id: 298,
+    category: 'DevOps',
+    question: 'Explain the ELK Stack and its components.',
+    answer: 'ELK Stack (Elasticsearch, Logstash, Kibana) is a centralized logging solution. Elasticsearch stores logs, Logstash processes them, and Kibana visualizes them. Often includes Beats for lightweight shipping.',
+    explanation: '**Components:** 1. **Beats** (Filebeat, Metricbeat): Lightweight agents that collect and ship data. 2. **Logstash:** Data processing pipeline (parse, filter, transform). 3. **Elasticsearch:** Distributed search and analytics engine storing logs as JSON documents. 4. **Kibana:** Visualization interface for searching, filtering, dashboards, alerts. **Use Cases:** Centralized log aggregation, real-time analysis, SIEM, APM.',
+    codeExample: `# Filebeat Configuration
+filebeat.inputs:
+- type: log
+  paths:
+    - /var/log/*.log
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+# Modern Alternative: EFK (Fluentd) or Grafana Loki`,
+    priority: null
+  },
+  {
+    id: 299,
+    category: 'DevOps',
+    question: 'What is Jenkins and how does it work?',
+    answer: 'Jenkins is an open-source automation server for CI/CD pipelines. It orchestrates builds, tests, and deployments using plugins and declarative or scripted pipelines.',
+    explanation: '**Architecture:** Master (orchestrates jobs, manages configuration), Agents/Nodes (execute build tasks), Plugins (extend functionality - Git, Docker, Kubernetes, etc.). **Strengths:** Huge plugin ecosystem, mature, flexible. **Weaknesses:** Complex maintenance, scaling challenges. Modern alternatives like GitLab CI and GitHub Actions are simpler.',
+    codeExample: `# Jenkins Declarative Pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm install && npm run build'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'kubectl apply -f k8s/'
+            }
+        }
+    }
+}`,
+    priority: null
+  },
+  {
+    id: 300,
+    category: 'DevOps',
+    question: 'What are GitHub Actions and how do they compare to Jenkins?',
+    answer: 'GitHub Actions is GitHub\'s native CI/CD platform that runs workflows directly in your repository. Simpler setup than Jenkins but less flexible for complex scenarios.',
+    explanation: '**Comparison:** Setup: Actions (zero setup) vs Jenkins (install, configure, maintain). Cost: Actions (free tier, pay per minute) vs Jenkins (infrastructure cost). Scalability: Actions (managed) vs Jenkins (self-managed). Flexibility: Jenkins (unlimited) vs Actions (good for most cases). Integration: Actions (native GitHub) vs Jenkins (any Git provider). **Choose Actions** for simplicity and GitHub projects. **Choose Jenkins** for complex requirements.',
+    codeExample: `# GitHub Actions Workflow (.github/workflows/ci.yml)
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm test`,
+    priority: null
+  },
+  {
+    id: 301,
+    category: 'DevOps',
+    question: 'What is Docker and why is it essential for DevOps?',
+    answer: 'Docker is a containerization platform that packages applications and dependencies into lightweight, portable containers, ensuring consistency across environments.',
+    explanation: '**Problem Without Docker:** "It works on my machine" - different OS versions, library conflicts cause deployment failures. **Solution With Docker:** Same container runs everywhere (dev, staging, prod). **Benefits:** Consistency, Isolation (no dependency conflicts), Portability, Efficiency (fewer resources than VMs), Fast Deployment (seconds), Versioning (tag images), Scalability. Essential for microservices, CI/CD, and cloud-native architectures.',
+    codeExample: `# Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
+
+# Build and run
+docker build -t myapp:1.0 .
+docker run -p 3000:3000 myapp:1.0`,
+    priority: null
+  },
+  {
+    id: 302,
+    category: 'DevOps',
+    question: 'Explain Docker multi-stage builds and their benefits.',
+    answer: 'Multi-stage builds use multiple FROM statements in a Dockerfile to separate build dependencies from runtime dependencies, creating smaller, more secure production images.',
+    explanation: '**Single-Stage:** ~900MB (includes build tools, dev dependencies). **Multi-Stage:** ~150MB (only runtime dependencies). **Benefits:** 80-90% size reduction, Faster pulls, Security (smaller attack surface), Clean separation (build tools don\'t exist in production). **Pattern:** Stage 1: Build (full SDK). Stage 2: Production (minimal runtime, alpine base).',
+    codeExample: `# Multi-Stage Dockerfile
+# Stage 1: Build
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: Production
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/package*.json ./
+RUN npm ci --production
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/server.js"]`,
+    priority: null
+  },
+  {
+    id: 303,
+    category: 'DevOps',
+    question: 'What is Kubernetes and why is it important for DevOps?',
+    answer: 'Kubernetes (K8s) is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications across clusters of machines.',
+    explanation: '**Problems Solved:** How to schedule containers across servers? Handle failures automatically? Scale based on demand? Manage networking? Update without downtime? **Core Concepts:** Pod (smallest unit), Deployment (manages replicas), Service (stable endpoint), ConfigMap/Secret (configuration), Namespace (isolation). **Benefits:** Self-healing, Auto-scaling, Rolling updates, Declarative YAML, Portability (any cloud), Rich ecosystem.',
+    codeExample: `# Kubernetes Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    spec:
+      containers:
+      - name: web-app
+        image: myapp:1.0
+        ports:
+        - containerPort: 3000`,
+    priority: null
+  },
+  {
+    id: 304,
+    category: 'DevOps',
+    question: 'Explain Kubernetes rolling updates and rollbacks.',
+    answer: 'Rolling updates gradually replace old pods with new ones, ensuring zero downtime. Rollbacks revert to previous version if issues are detected.',
+    explanation: '**Strategy:** maxSurge (max extra pods during update), maxUnavailable (max unavailable pods). **Process:** Create new pods → Wait for readiness probes → Terminate old pods → Repeat until all updated. **Commands:** kubectl set image (trigger), kubectl rollout status (monitor), kubectl rollout undo (rollback). **Health Checks:** Readiness probe (ready to serve traffic), Liveness probe (should restart).',
+    codeExample: `# Rolling Update Commands
+kubectl set image deployment/web-app web-app=myapp:2.0
+kubectl rollout status deployment/web-app
+kubectl rollout history deployment/web-app
+kubectl rollout undo deployment/web-app
+
+# Health Checks
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 3000`,
+    priority: null
+  },
+  {
+    id: 305,
+    category: 'DevOps',
+    question: 'What are Helm charts and why are they used?',
+    answer: 'Helm is a package manager for Kubernetes that uses charts (templates) to define, install, and upgrade complex Kubernetes applications with parameterized configurations.',
+    explanation: '**Problem:** Managing dozens of YAML files for each microservice becomes unwieldy. **Solution:** Helm charts with templates and values. **Structure:** Chart.yaml (metadata), values.yaml (default config), templates/ (K8s manifests with placeholders). **Benefits:** Templating, reusability, versioning, dependency management, easy rollbacks. Essential for managing complex K8s deployments.',
+    codeExample: `# Helm Commands
+helm install my-release ./my-chart
+helm install my-release ./my-chart --set replicaCount=5
+helm upgrade my-release ./my-chart --set image.tag=3.0
+helm rollback my-release 1
+helm list
+helm uninstall my-release`,
+    priority: null
+  },
+  {
+    id: 306,
+    category: 'DevOps',
+    question: 'What is a service mesh and when should you use Istio?',
+    answer: 'A service mesh is an infrastructure layer that handles service-to-service communication, providing observability, security, and traffic management without changing application code. Istio is the most popular service mesh.',
+    explanation: '**Problem:** Each microservice needs retry logic, circuit breakers, authentication, encryption, metrics - leading to code duplication. **Solution:** Sidecar proxy (Envoy) injected into each pod handles cross-cutting concerns. **Features:** Traffic management (canary, A/B testing), Security (mTLS encryption), Resilience (circuit breakers, retries), Observability (metrics, tracing, logs). **When to Use:** Large microservices (10+ services), advanced traffic management, service-to-service encryption. **When NOT:** Small number of services, simple apps.',
+    codeExample: `# Istio Canary Deployment
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+spec:
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 90
+    - destination:
+        host: reviews
+        subset: v2
+      weight: 10`,
+    priority: null
+  },
+  {
+    id: 307,
+    category: 'DevOps',
+    question: 'What is Terraform state and why is it important?',
+    answer: 'Terraform state is a file that maps your configuration to real-world resources, tracks metadata, and enables Terraform to plan and apply changes efficiently.',
+    explanation: '**Why State Matters:** Resource tracking (knows which resources Terraform manages), Metadata (stores IDs, IPs), Performance (avoids API queries), Dependencies (understands relationships), Planning (compares desired vs actual). **Remote State (Best Practice):** Store in S3 with DynamoDB locking. **Benefits:** Team collaboration, Security (encrypted), Locking (prevents concurrent modifications), Backup (versioned), Access control (IAM). **Critical Rules:** Never edit manually, always use remote state for teams, enable locking, backup regularly, never commit to Git.',
+    codeExample: `# Remote State Configuration
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}
+
+# State Commands
+terraform state list
+terraform import aws_instance.web i-0abc123`,
+    priority: null
+  },
+  {
+    id: 308,
+    category: 'DevOps',
+    question: 'Explain Terraform modules and best practices.',
+    answer: 'Terraform modules are reusable, encapsulated collections of resources that promote code reuse, maintainability, and standardization across infrastructure.',
+    explanation: '**Structure:** main.tf (resources), variables.tf (inputs), outputs.tf (outputs), README.md (docs). **Best Practices:** 1. Small, focused modules (one responsibility). 2. Version modules (use Git tags). 3. Document inputs/outputs. 4. Validate inputs. 5. Test modules (terratest). 6. Publish to registry. Modules transform Terraform from scripts to maintainable infrastructure code.',
+    codeExample: `# Module Structure
+modules/vpc/
+├── main.tf         # Resources
+├── variables.tf    # Inputs
+├── outputs.tf      # Outputs
+└── README.md       # Docs
+
+# Using Module
+module "prod_vpc" {
+  source     = "./modules/vpc"
+  cidr_block = "10.0.0.0/16"
+  environment = "production"
+}`,
+    priority: null
+  },
+  {
+    id: 309,
+    category: 'DevOps',
+    question: 'What is Ansible and how does it work?',
+    answer: 'Ansible is an agentless configuration management tool that uses SSH to execute tasks on remote servers, defined in simple YAML playbooks.',
+    explanation: '**Architecture:** Control Node (runs Ansible), Managed Nodes (target servers, no agent required), Inventory (list of hosts), Playbooks (YAML task definitions), Modules (reusable task units). **Key Concepts:** Idempotent (running multiple times produces same result), Agentless (no software on managed nodes), Push Model (control node pushes changes), Human-Readable (simple YAML). Excels at configuration management, application deployment, orchestration.',
+    codeExample: `# Ansible Playbook
+- hosts: webservers
+  become: yes
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+# Run: ansible-playbook -i hosts.ini site.yml`,
+    priority: null
+  },
+  {
+    id: 310,
+    category: 'DevOps',
+    question: 'What are Ansible roles and when should you use them?',
+    answer: 'Ansible roles are reusable, organized collections of tasks, variables, files, and templates that follow a standard directory structure for better maintainability.',
+    explanation: '**Problem:** Large playbooks become hard to maintain, reuse, and share. **Solution:** Roles with standard structure (defaults/, tasks/, handlers/, templates/, files/, vars/, meta/). **Benefits:** Reusability (use across projects), Organization (standard structure), Maintainability (smaller files), Sharing (publish to Ansible Galaxy), Testing (test independently). Essential for scaling Ansible beyond simple playbooks.',
+    codeExample: `# Role Structure
+roles/nginx/
+├── defaults/main.yml      # Default variables
+├── tasks/main.yml         # Tasks
+├── handlers/main.yml      # Handlers
+├── templates/nginx.conf.j2
+└── vars/main.yml          # Variables
+
+# Using Role
+- hosts: webservers
+  roles:
+    - role: nginx
+      vars:
+        nginx_port: 80`,
+    priority: null
+  },
+  {
+    id: 311,
+    category: 'DevOps',
+    question: 'What is Git branching strategy and explain GitFlow?',
+    answer: 'Git branching strategy defines how teams organize branches for development, releases, and hotfixes. GitFlow is a popular model with dedicated branches for features, releases, and hotfixes.',
+    explanation: '**GitFlow Branches:** main/master (production-ready), develop (integration), feature/* (individual features), release/* (release preparation), hotfix/* (urgent fixes). **Workflow:** Feature branch from develop → merge back to develop → create release branch → merge to main and tag → merge back to develop. **Choose GitFlow when:** Versioned releases, multiple versions supported, regulatory requirements. **Modern Alternative:** GitHub Flow (simpler, main + short-lived feature branches) for continuous deployment.',
+    codeExample: `# GitFlow Commands
+git checkout -b feature/user-auth
+git checkout develop
+git merge --no-ff feature/user-auth
+git checkout -b release/1.0.0
+git checkout main
+git merge --no-ff release/1.0.0
+git tag -a v1.0.0
+git checkout -b hotfix/critical-bug`,
+    priority: null
+  },
+  {
+    id: 312,
+    category: 'DevOps',
+    question: 'What is trunk-based development and how does it work?',
+    answer: 'Trunk-based development keeps all developers working on the main branch with short-lived feature branches (< 2 days), using feature flags instead of long-lived branches.',
+    explanation: '**Traditional Problems:** Long-lived branches cause merge conflicts, "merge hell", delayed feedback, slower delivery. **Trunk-Based:** Everyone works on main, make small incremental changes, very short-lived branches (< 2 days). **Feature Flags:** Control visibility of incomplete features in production. **Benefits:** Continuous integration, faster feedback, reduced conflicts, flexible releases (decouple deployment from release), safer rollbacks. **Requirements:** Strong automated testing, feature flag infrastructure, team discipline. Used by Google, Facebook, Amazon.',
+    codeExample: `# Feature Flag Implementation
+if (featureFlags.isEnabled('new-checkout')) {
+  renderNewCheckout();
+} else {
+  renderOldCheckout();
+}
+
+# Toggle Configuration
+features:
+  new-checkout:
+    enabled: false
+    percentage: 0  # Gradually increase: 10%, 50%, 100%`,
+    priority: null
+  },
+  {
+    id: 313,
+    category: 'DevOps',
+    question: 'What is chaos engineering and why is it important?',
+    answer: 'Chaos engineering is the practice of intentionally injecting failures into systems to test resilience, identify weaknesses, and build confidence in system reliability.',
+    explanation: '**Principle:** "Hope is not a strategy." Proactively test failure scenarios instead of waiting for production incidents. **Process:** 1. Define steady state (normal behavior). 2. Hypothesize ("If DB fails, system recovers in 5s"). 3. Inject failure. 4. Verify system maintains steady state. 5. Learn and fix weaknesses. **Common Experiments:** Kill instances, add network latency, fill disk space, corrupt packets, DNS failures, CPU/memory exhaustion. **Tools:** Chaos Monkey (Netflix), LitmusChaos (K8s), Gremlin. Netflix uses Chaos Monkey to randomly terminate EC2 instances, resulting in 99.99% uptime.',
+    codeExample: `# Chaos Engineering Process
+# 1. Define: < 1% error rate, < 200ms latency
+# 2. Hypothesize: System handles DB failure
+# 3. Inject: Kill database pod
+# 4. Verify: Auto-failover to replica in < 5s
+# 5. Learn: Fix weaknesses found
+
+# LitmusChaos Experiment
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+spec:
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '60'`,
+    priority: null
+  },
+  {
+    id: 314,
+    category: 'DevOps',
+    question: 'What is Site Reliability Engineering (SRE)?',
+    answer: 'SRE is a discipline that applies software engineering principles to operations, focusing on reliability, automation, and measurable service level objectives (SLOs).',
+    explanation: '**Google\'s Definition:** "SRE is what happens when you ask a software engineer to design an operations function." **Core Concepts:** SLI (Service Level Indicator - metric measuring behavior), SLO (Service Level Objective - target value), SLA (Service Level Agreement - contractual obligation), Error Budget (allowed downtime). **Responsibilities:** Automation (eliminate toil), Monitoring, Incident Response, Capacity Planning, Release Engineering, Performance Optimization. **Toil Reduction:** Replace manual work with automation (Terraform, Ansible, K8s). **Blameless Postmortems:** Focus on systemic issues, not individuals.',
+    codeExample: `# SRE Concepts
+# SLI: Availability = successful requests / total requests
+# SLO: 99.9% availability target
+# SLA: 99.9% uptime or refund 10%
+# Error Budget: 0.1% = 43.2 minutes/month
+
+# Toil Elimination
+# Bad: Manual server provisioning
+# Good: terraform apply + ansible-playbook`,
+    priority: null
+  },
+  {
+    id: 315,
+    category: 'DevOps',
+    question: 'Explain the concept of error budgets in SRE.',
+    answer: 'Error budget is the amount of unreliability allowed before violating SLO. It balances innovation (feature development) with reliability (system stability).',
+    explanation: '**Calculation:** SLO 99.9% = Error Budget 0.1%. Monthly budget: 30 days × 24 hours × 60 minutes × 0.1% = 43.2 minutes. **How It Works:** If budget remaining (> 50%): Normal development velocity. If 20-50%: Increase testing, monitor closely. If < 20%: Freeze features, focus on reliability. If exhausted: Stop all feature releases until reliability improves. **Policy:** Error budget determines release velocity. Exhausted budget = reliability work takes priority over new features. This creates accountability and data-driven decisions about when to slow down for stability.',
+    codeExample: `# Error Budget Calculation
+# SLO: 99.9% availability
+# Error Budget: 0.1% per month
+# Monthly allowance: 43.2 minutes downtime
+
+# Budget Policy
+# > 50% remaining: Ship features normally
+# 20-50% remaining: Increase testing
+# < 20% remaining: Freeze features, fix reliability
+# 0% remaining: Stop releases, focus on stability`,
+    priority: null
+  }
 ]
